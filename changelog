@@ -1,3 +1,9 @@
+dnsmasq (2.26-1) unstable; urgency=high
+
+   * New upstream. (Fixes possible crash in 2.25, hence urgency).
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 22 Jan 2005 11:05:22 +0000
+
 dnsmasq (2.25-1) unstable; urgency=low
 
    * Remove bashisms in postinst and prerm scripts.
