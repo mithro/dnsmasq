@@ -1,18 +1,17 @@
-# change these lines if you want dnsmasq to serve an MX record.
-# only one need be set, the other defaults to the name of the host 
-# running dnsmasq
-#MAILHOSTNAME=""
-#MAILTARGET=""
-# change this line if you want dns to get its upstream servers from
-# somewhere other that /etc/resolv.conf 
-#RESOLV_CONF=""
-# You might want to set this to "root" if RESOLV.CONF is set 
-# to /etc/ppp/resolv.conf since /etc/ppp/* are not world readable
-#DNSMASQ_USER="root"
-# If you want dnsmasq to listen for requests on only one interface
-# (and the loopback) give the name of the interface (eg eth0) here
-#DNSMASQ_INTERFACE="eth0"
-# change these if you want dnsmasq to cache any "hostname" 
-# or "client-hostname" from a dhcpd's lease file
-#DHCP_LEASE="/var/lib/dhcp/dhcpd.leases"
+#    NOTE:
+#
+# From version 1.10, dnsmasq itself reads a 
+# config file at /etc/dnsmasq.conf so you may
+# want to set options there rather than here.
+#
+# This file now has only two  functions, 
+# to set DOMAIN_SUFFIX by running `dnsdomainname` 
+# and to select an alternative config file
+# by setting DNSMASQ_OPTS to --conf-file=<file>
+#
+# For upgraders, all the shell variables set here in previous versions
+# are still honored by the init script so if you just keep your old
+# version of this file nothing will break.
+
 #DOMAIN_SUFFIX=`dnsdomainname`
+#DNSMASQ_OPTS="--conf-file=/etc/dnsmasq.alt"

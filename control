@@ -6,13 +6,12 @@ Standards-Version: 3.5.6.0
 
 Package: dnsmasq
 Architecture: any
-Depends: netbase, ${shlibs:Depends}
-Suggests: dhcp
-Conflicts: bind, dnrd, pdnsd, maradns
-Description: A caching DNS forwarder.
+Depends: netbase, ${shlibs:Depends}, sed (>= 4.0.7-3)
+Suggests: dhcp, resolvconf
+Description: A caching DNS forwarder
  Dnsmasq is lightweight, easy to configure DNS forwarder designed
  to provide DNS (domain name) services to a small network where
- using BIND would be overkill. It can be have its upstream DNS
+ using BIND would be overkill. It can have its upstream DNS
  servers automatically configured by PPP or DHCP and it can serve
  the names of local machines which are not in the global DNS. It
  can integrate with the ISC DHCP daemon to serve the names of

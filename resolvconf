@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Script to update the resolver list for dnsmasq
+#
+# Resolvconf may run us even if dnsmasq is not running.
+# If dnsmasq is installed then we go ahead and update
+# the resolver list in case dnsmasq is started later.
+#
+# Assumption: On entry, PWD contains the resolv.conf-type files
+#
+# Licensed under the GNU GPL.  See /usr/share/common-licenses/GPL.
+#
+# History
+# June-July 2003: Written by Thomas Hood <jdthood@yahoo.co.uk>
+
+set -e
+PATH=/bin:/sbin
+RUNDIR="/var/run/dnsmasq/"
+RSLVRLISTFILE="${RUNDIR}resolv.conf"
+
+[ -x /usr/sbin/dnsmasq ] || exit 0
+
+[ -d $RUNDIR ] || mkdir --parents --mode=0755 $RUNDIR
+
+R=""
+RSLVCNFFILES=$(echo *)
+[ "$RSLVCNFFILES" != "*" ] || RSLVCNFFILES=""
+for F in $RSLVCNFFILES ; do
+	[ "$F" != "lo" ] || continue
+	R="${R}$(grep '^[[:space:]]*nameserver[[:space:]]' $F || true)
+"
+done
+
+echo -n "$R" >| $RSLVRLISTFILE
+
