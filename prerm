@@ -6,9 +6,9 @@ if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/dnsmasq ]; then
 fi
 
 if [ -x /usr/sbin/invoke-rc.d ] ; then
-    invoke-rc.d dnsmasq  stop && true
+    invoke-rc.d dnsmasq  stop || true
 else
-    /etc/init.d/dnsmasq stop && true
+    /etc/init.d/dnsmasq stop || true
 fi
 
 exit 0

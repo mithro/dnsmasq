@@ -2,34 +2,63 @@
 #
 # Script to update the resolver list for dnsmasq
 #
-# Resolvconf may run us even if dnsmasq is not running.
+# N.B. Resolvconf may run us even if dnsmasq is not running.
 # If dnsmasq is installed then we go ahead and update
 # the resolver list in case dnsmasq is started later.
 #
 # Assumption: On entry, PWD contains the resolv.conf-type files
 #
+# Depends: resolvconf (>= 1.14)
+#
 # Licensed under the GNU GPL.  See /usr/share/common-licenses/GPL.
 #
 # History
-# June-July 2003: Written by Thomas Hood <jdthood@yahoo.co.uk>
+# June 2003 - June 2004: Written by Thomas Hood <jdthood@yahoo.co.uk>
 
 set -e
-PATH=/bin:/sbin
-RUNDIR="/var/run/dnsmasq/"
-RSLVRLISTFILE="${RUNDIR}resolv.conf"
+
+RUN_DIR="/var/run/dnsmasq"
+RSLVRLIST_FILE="${RUN_DIR}/resolv.conf"
+TMP_FILE="${RSLVRLIST_FILE}_new.$$"
 
 [ -x /usr/sbin/dnsmasq ] || exit 0
+[ -x /lib/resolvconf/list-records ] || exit 1
 
-[ -d $RUNDIR ] || mkdir --parents --mode=0755 $RUNDIR
+PATH=/bin:/sbin
 
-R=""
-RSLVCNFFILES=$(echo *)
-[ "$RSLVCNFFILES" != "*" ] || RSLVCNFFILES=""
-for F in $RSLVCNFFILES ; do
-	[ "$F" != "lo" ] || continue
-	R="${R}$(grep '^[[:space:]]*nameserver[[:space:]]' $F || true)
-"
-done
+report_err() { echo "$0: Error: $*" >&2 ; }
 
-echo -n "$R" >| $RSLVRLISTFILE
+# Stores arguments (minus duplicates) in RSLT, separated by spaces
+# Doesn't work properly if an argument itself contain whitespace
+uniquify()
+{
+	RSLT=""
+	while [ "$1" ] ; do
+		for E in $RSLT ; do
+			[ "$1" = "$E" ] && { shift ; continue 2 ; }
+		done
+		RSLT="${RSLT:+$RSLT }$1"
+		shift
+	done
+}
+
+if [ ! -d "$RUN_DIR" ] && ! mkdir --parents --mode=0755 "$RUN_DIR" ; then
+	report_err "Failed trying to create directory $RUN_DIR"
+	exit 1
+fi
+
+RSLVCNFFILES="$(/lib/resolvconf/list-records | sed -e '/^lo.dnsmasq$/d')"
+
+NMSRVRS=""
+if [ "$RSLVCNFFILES" ] ; then
+	uniquify $(sed -n -e 's/^[[:space:]]*nameserver[[:space:]]\+//p' $RSLVCNFFILES)
+	NMSRVRS="$RSLT"
+fi
+
+clean_up() { rm -f "$TMP_FILE" ; }
+trap clean_up EXIT
+: >| "$TMP_FILE"
+for N in $NMSRVRS ; do echo "nameserver $N" >> "$TMP_FILE" ; done
+mv -f "$TMP_FILE" "$RSLVRLIST_FILE"
+
 

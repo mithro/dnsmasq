@@ -37,19 +37,23 @@ binary-arch:	checkroot build
 		-d debian/tmp/usr/share/man/man8\
                 -d debian/tmp/etc/init.d\
                 -d debian/tmp/etc/resolvconf/update.d\
-                -d debian/tmp/etc/default
+                -d debian/tmp/etc/default\
+	        -d debian/tmp/var/run\
+                -d debian/tmp/var/lib/misc
 	install -m 644 debian/conffiles debian/tmp/DEBIAN
 	install -m 755 debian/postinst debian/postrm debian/prerm debian/tmp/DEBIAN
-	strip -R .note -R .comment dnsmasq
-	install -m 755 dnsmasq debian/tmp/usr/sbin
+	strip -R .note -R .comment src/dnsmasq
+	install -m 755 src/dnsmasq debian/tmp/usr/sbin
 	install -m 755 debian/init debian/tmp/etc/init.d/dnsmasq
 	install -m 755 debian/resolvconf debian/tmp/etc/resolvconf/update.d/dnsmasq
 	install -m 644 debian/default debian/tmp/etc/default/dnsmasq
-	install -m 644 debian/dnsmasq.conf debian/tmp/etc/dnsmasq.conf
+	install -m 644 dnsmasq.conf.example debian/tmp/etc/dnsmasq.conf
 	cp doc.html debian/tmp/usr/share/doc/$(package)/.
 	cp setup.html debian/tmp/usr/share/doc/$(package)/.
 	cp FAQ debian/tmp/usr/share/doc/$(package)/.
 	gzip -9 debian/tmp/usr/share/doc/$(package)/FAQ
+	cp UPGRADING_to_2.0 debian/tmp/usr/share/doc/$(package)/.
+	gzip -9 debian/tmp/usr/share/doc/$(package)/UPGRADING_to_2.0
 	cp CHANGELOG debian/tmp/usr/share/doc/$(package)/changelog
 	gzip -9 debian/tmp/usr/share/doc/$(package)/changelog
 	cp debian/changelog debian/tmp/usr/share/doc/$(package)/changelog.Debian
@@ -58,14 +62,14 @@ binary-arch:	checkroot build
 	cp debian/copyright debian/tmp/usr/share/doc/$(package)/copyright
 	cp dnsmasq.8 debian/tmp/usr/share/man/man8
 	gzip -9 debian/tmp/usr/share/man/man8/dnsmasq.8
-	dpkg-shlibdeps dnsmasq
+	dpkg-shlibdeps src/dnsmasq
 	dpkg-gencontrol -isp
 	chown -R root.root debian/tmp
 	chmod -R g-ws debian/tmp
 	dpkg --build debian/tmp ..
 
 define checkdir
-	test -f $(package).c -a -f debian/rules
+	test -f dnsmasq.8 -a -f debian/rules
 endef
 
 # Below here is fairly generic really

@@ -1,27 +1,27 @@
 #!/bin/sh
 set -e
 
-# earlier versions stopped dnsmasq at priority 15, so we remove
+# earlier versions used different priorities so remove
 # all the symlinks here to ensure we get only the correct ones on upgrade.
 update-rc.d -f dnsmasq remove >/dev/null 2>&1
 
 update-rc.d dnsmasq defaults 15 85 >/dev/null
 
-if [ "$1" = "configure" ]; then
+if [ "$1" = "configure" -o "$1" = "abort-upgrade" ]; then
 
 # belt and braces ....
 	if [ -e /var/run/dnsmasq.pid ]; then
             if [ -x /usr/sbin/invoke-rc.d ] ; then
-     		invoke-rc.d dnsmasq  stop >/dev/null 2>&1 && true
+     		invoke-rc.d dnsmasq  stop >/dev/null 2>&1 || true
             else
-                /etc/init.d/dnsmasq stop >/dev/null 2>&1 && true
+                /etc/init.d/dnsmasq stop >/dev/null 2>&1 || true
             fi
         fi
 
         if [ -x /usr/sbin/invoke-rc.d ] ; then
-     	    invoke-rc.d dnsmasq  start
+     	    invoke-rc.d dnsmasq  start || true
         else
-            /etc/init.d/dnsmasq start
+            /etc/init.d/dnsmasq start || true
         fi
 
 fi
