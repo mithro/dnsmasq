@@ -1,3 +1,10 @@
+dnsmasq (2.22-1) unstable; urgency=low
+
+   * New upstream.
+   * Fixed broken-ness when read /etc/ethers. (closes: #301999)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thur, 24 Mar 2005 17:10:13 +0000
+
 dnsmasq (2.21-1) unstable; urgency=low
 
    * New upstream.
