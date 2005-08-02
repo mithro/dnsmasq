@@ -1,8 +1,22 @@
+dnsmasq (2.23-1) unstable; urgency=low
+
+   * New upstream. (closes: #302501) (closes: #315794)
+   * Fix manpage typos. (closes: #304984)
+   * Add support for DNSMASQ_EXCEPT in /etc/defaults/dnsmasq.
+     putting "lo" in this also disables resolvconf support.
+   * No longer delete pre-existing /etc/init.d symlinks. The 
+     change in default runlevels which neccesitated this 
+     is now ancient history and anyway the startup script now 
+     behaves when called twice. (closes: #312111)
+   * Tightened config-file parser. (closes: #317030)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Tue, 02 Aug 2005 13:17:22 +0000
+
 dnsmasq (2.22-2) unstable; urgency=low
 
    * Make the resolv.conf polling code resistant to 
      backwards-moving system clocks. (closes: #306117) (closes: #300694)
-	
+        
  -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 04 May 2005 13:25:23 +0000
 
 dnsmasq (2.22-1) unstable; urgency=low

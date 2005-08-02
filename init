@@ -37,6 +37,10 @@ for INTERFACE in $DNSMASQ_INTERFACE; do
 	DNSMASQ_INTERFACES="$DNSMASQ_INTERFACES -i $INTERFACE"
 done
 
+for INTERFACE in $DNSMASQ_EXCEPT; do
+	DNSMASQ_INTERFACES="$DNSMASQ_INTERFACES -I $INTERFACE"
+done
+
 start()
 {
 	# Return
@@ -59,7 +63,15 @@ start()
 
 start_resolvconf()
 {
-	if [ -x /sbin/resolvconf ] ; then
+# If interface "lo" is explicitly disabled in /etc/default/dnsmasq
+# Then dnsmasq won't be providing local DNS, so don't add it to
+# the resolvconf server set.
+	for interface in $DNSMASQ_EXCEPT
+	do
+		[ $interface = lo ] && return
+	done
+
+        if [ -x /sbin/resolvconf ] ; then
 		echo "nameserver 127.0.0.1" | /sbin/resolvconf -a lo.$NAME
 	fi
 	return 0

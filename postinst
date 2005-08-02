@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-# earlier versions used different priorities so remove
-# all the symlinks here to ensure we get only the correct ones on upgrade.
-update-rc.d -f dnsmasq remove >/dev/null 2>&1
-
 update-rc.d dnsmasq defaults 15 85 >/dev/null
 
 if [ "$1" = "configure" -o "$1" = "abort-upgrade" ]; then
