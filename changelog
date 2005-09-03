@@ -1,3 +1,13 @@
+dnsmasq (2.24-1) unstable; urgency=low
+
+   * New upstream. (closes: #330422)
+   * Fix typo and clean up dnsmasq.conf (closes: #326057) (closes: #304446)
+   * Add build support for I18N and gettext.
+   * Fixed manpage typos. (closes: #336413)
+   * Create a dnsmasq-unique userid for the daemon to run as. (closes: #338353)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sat, 03 Sep 2005 20:02:32 +0000
+
 dnsmasq (2.23-1) unstable; urgency=low
 
    * New upstream. (closes: #302501) (closes: #315794)

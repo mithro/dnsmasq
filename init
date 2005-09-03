@@ -41,6 +41,10 @@ for INTERFACE in $DNSMASQ_EXCEPT; do
 	DNSMASQ_INTERFACES="$DNSMASQ_INTERFACES -I $INTERFACE"
 done
 
+if [ ! "$DNSMASQ_USER" ]; then
+   DNSMASQ_USER="dnsmasq"
+fi
+
 start()
 {
 	# Return

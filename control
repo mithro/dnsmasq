@@ -1,17 +1,18 @@
 Source: dnsmasq
 Section: net
 Priority: optional
+Build-depends: gettext
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
 Standards-Version: 3.6.2
 
 Package: dnsmasq
 Architecture: any
-Depends: netbase, ${shlibs:Depends}
+Depends: locales, netbase, ${shlibs:Depends}
 Suggests: resolvconf
 Conflicts: pdnsd, resolvconf (<<1.15)
 Description: A small caching DNS proxy and DHCP server
- Dnsmasq is lightweight, easy to configure DNS forwarder and DHCP
- server. It is designed to provide DNS and, optionally, DHCP, to a 
+ Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP
+ server. It is designed to provide DNS and optionally, DHCP, to a 
  small network. It can serve the names of local machines which are 
  not in the global DNS. The DHCP server integrates with the DNS 
  server and allows machines with DHCP-allocated addresses

@@ -1,23 +1,32 @@
 #!/bin/sh
 set -e
 
+# create a user to run as (code stolen from dovecot-common)
+if [ "$1" = "configure" ]; then
+  if [ -z "`id -u dnsmasq 2> /dev/null`" ]; then
+    /usr/sbin/adduser --system  --home /var/lib/misc --gecos "dnsmasq" \
+                      --disabled-password --quiet dnsmasq || true
+  fi
+
+fi
+
 update-rc.d dnsmasq defaults 15 85 >/dev/null
 
 if [ "$1" = "configure" -o "$1" = "abort-upgrade" ]; then
 
 # belt and braces ....
-	if [ -e /var/run/dnsmasq.pid ]; then
-            if [ -x /usr/sbin/invoke-rc.d ] ; then
-     		invoke-rc.d dnsmasq  stop >/dev/null 2>&1 || true
-            else
-                /etc/init.d/dnsmasq stop >/dev/null 2>&1 || true
-            fi
-        fi
+  if [ -e /var/run/dnsmasq.pid ]; then
+    if [ -x /usr/sbin/invoke-rc.d ] ; then
+      invoke-rc.d dnsmasq  stop >/dev/null 2>&1 || true
+    else
+      /etc/init.d/dnsmasq stop >/dev/null 2>&1 || true
+    fi
+  fi
 
-        if [ -x /usr/sbin/invoke-rc.d ] ; then
-     	    invoke-rc.d dnsmasq  start || true
-        else
-            /etc/init.d/dnsmasq start || true
-        fi
+  if [ -x /usr/sbin/invoke-rc.d ] ; then
+    invoke-rc.d dnsmasq  start || true
+  else
+    /etc/init.d/dnsmasq start || true
+  fi
 
 fi
