@@ -1,3 +1,11 @@
+dnsmasq (2.25-1) unstable; urgency=low
+
+   * Remove bashisms in postinst and prerm scripts.
+   * Remove misconcieved dependency on locales.	
+   * Depend on adduser.
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 01 Dec 2005 21:02:12 +0000
+
 dnsmasq (2.24-1) unstable; urgency=low
 
    * New upstream. (closes: #330422)

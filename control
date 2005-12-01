@@ -7,7 +7,7 @@ Standards-Version: 3.6.2
 
 Package: dnsmasq
 Architecture: any
-Depends: locales, netbase, ${shlibs:Depends}
+Depends: netbase, ${shlibs:Depends}, adduser
 Suggests: resolvconf
 Conflicts: pdnsd, resolvconf (<<1.15)
 Description: A small caching DNS proxy and DHCP server

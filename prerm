@@ -1,8 +1,10 @@
 #!/bin/sh
 set -e
 
-if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/dnsmasq ]; then
-   rm -f /usr/doc/dnsmasq
+if [ "$1" = "upgrade" ] || [ "$1" = "remove" ]; then
+    if [ -L /usr/doc/dnsmasq ]; then
+       rm -f /usr/doc/dnsmasq
+    fi
 fi
 
 if [ -x /usr/sbin/invoke-rc.d ] ; then
