@@ -1,3 +1,10 @@
+dnsmasq (2.28-1) unstable; urgency=low
+
+   * New upstream. (closes: #359956) (closes: #362499)
+   * Added firestarter info to FAQ. (closes: #359139)
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Tue, 14 Mar 2006 19:20:12 +0000
+
 dnsmasq (2.27-1) unstable; urgency=low
 
    * New upstream.
