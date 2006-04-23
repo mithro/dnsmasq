@@ -1,3 +1,9 @@
+dnsmasq (2.30-1) unstable; urgency=low
+
+   * New upstream, fixes crash with DHCP broadcast replies.
+				
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 23 Apr 2006 14:58:22 +0000
+
 dnsmasq (2.29-1) unstable; urgency=low
 
    * New upstream. (closes: #363244) (closes: #363340)
