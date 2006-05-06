@@ -1,9 +1,9 @@
 Source: dnsmasq
 Section: net
 Priority: optional
-Build-depends: gettext
+Build-depends: gettext, libdbus-1-dev (>=0.61)
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
-Standards-Version: 3.6.2
+Standards-Version: 3.7.2
 
 Package: dnsmasq
 Architecture: any

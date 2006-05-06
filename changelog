@@ -1,3 +1,13 @@
+dnsmasq (2.31-1) unstable; urgency=high
+
+   * New upstream. (closes: #364800)
+   * Compile in Dbus support now that suitable Dbus packages exist.
+   * Don't stop an old dnsmasq process, until a new one is ready, 
+     when upgrading. (closes: #366224)
+   * Move to standards-version 3.7.2 (no changes needed).
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sat, 6 May 2006 11:58:22 +0000
+
 dnsmasq (2.30-1) unstable; urgency=low
 
    * New upstream, fixes crash with DHCP broadcast replies.
