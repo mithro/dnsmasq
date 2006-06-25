@@ -1,3 +1,9 @@
+dnsmasq (2.32-2) unstable; urgency=low
+
+   * Added LSB tags to init.d startup script. (closes: #374650)
+				
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 25 June 2006 17:55:11 +0000
+
 dnsmasq (2.32-1) unstable; urgency=low
 
    * New upstream.
