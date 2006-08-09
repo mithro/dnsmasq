@@ -1,3 +1,13 @@
+dnsmasq (2.34-1) unstable; urgency=low
+
+   * New upstream.
+   * Includes --clear-on-reload flag. (loses: #391654)
+   * Don't any longer set the "domain-needed" and "bogus-priv" flags in the
+   * the default-installed dnsmasq.conf. These can generate puzzling 
+   * behaviour for people who get them without asking.
+				
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 9 Aug 2006 09:23:28 +0000
+
 dnsmasq (2.33-1) unstable; urgency=low
 
    * New upstream.
