@@ -1,3 +1,11 @@
+dnsmasq (2.39-1) unstable; urgency=low
+
+   * New upstream.
+   * Provide example config file in /usr/share/doc/dnsmasq/examples
+     as well as /etc/dnsmasq.conf, so it's available for reference.
+			
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 13 Feb 2007 10:02:38 +0000
+
 dnsmasq (2.38-1) unstable; urgency=low
 
    * New upstream (closes: #410185)
