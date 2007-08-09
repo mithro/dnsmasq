@@ -9,10 +9,37 @@
 # paternity under the Copyright, Designs and Patents Act 1988.)
 # This file may have to be extensively modified
 
-# Pay no attention to the man behind the curtain......
-DBUS ?= -DHAVE_DBUS
-
 package=dnsmasq
+
+# policy manual, section 10.1
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+     CFLAGS = -g -O0
+else
+     CFLAGS = -g -O2
+endif
+
+COPTS = 
+TARGET = install-i18n
+
+ifeq (,$(findstring nodbus,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DHAVE_DBUS
+endif
+
+ifneq (,$(findstring noipv6,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DNO_IPV6
+endif
+
+ifneq (,$(findstring notftp,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DNO_TFTP
+endif
+
+ifneq (,$(findstring nortc,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DHAVE_BROKEN_RTC
+endif
+
+ifneq (,$(findstring noi18n,$(DEB_BUILD_OPTIONS)))
+     TARGET = install
+endif
 
 clean:
 	$(checkdir)
@@ -38,7 +65,8 @@ binary-arch:	checkroot
 	install -m 644 debian/default debian/tmp/etc/default/dnsmasq
 	install -m 644 dnsmasq.conf.example debian/tmp/etc/dnsmasq.conf
 	install -m 644 dbus/dnsmasq.conf debian/tmp/etc/dbus-1/system.d/dnsmasq.conf
-	make install-i18n PREFIX=/usr DESTDIR=`pwd`/debian/tmp COPTS=$(DBUS)
+	make $(TARGET) PREFIX=/usr DESTDIR=`pwd`/debian/tmp CFLAGS="$(CFLAGS)" COPTS="$(COPTS)" CC=gcc
+ifeq (,$(findstring nodocs,$(DEB_BUILD_OPTIONS)))
 	cp doc.html debian/tmp/usr/share/doc/$(package)/.
 	cp setup.html debian/tmp/usr/share/doc/$(package)/.
 	cp dnsmasq.conf.example debian/tmp/usr/share/doc/$(package)/examples/.
@@ -48,6 +76,7 @@ binary-arch:	checkroot
 	gzip -9 debian/tmp/usr/share/doc/$(package)/changelog
 	cp dbus/DBus-interface debian/tmp/usr/share/doc/$(package)/.
 	gzip -9 debian/tmp/usr/share/doc/$(package)/DBus-interface	
+endif
 	cp debian/changelog debian/tmp/usr/share/doc/$(package)/changelog.Debian
 	gzip -9 debian/tmp/usr/share/doc/$(package)/changelog.Debian
 	cp debian/readme debian/tmp/usr/share/doc/$(package)/README.Debian
@@ -58,7 +87,10 @@ binary-arch:	checkroot
                        gzip -9 $$f/man8/dnsmasq.8 ; \
                 fi \
 	done
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	strip -R .note -R .comment debian/tmp/usr/sbin/dnsmasq
+endif
+	cd debian/tmp && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums
 	dpkg-shlibdeps debian/tmp/usr/sbin/dnsmasq
 	dpkg-gencontrol -isp
 	chown -R root.root debian/tmp

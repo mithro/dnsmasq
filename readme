@@ -42,4 +42,12 @@ Notes on configuring dnsmasq as packaged for Debian.
     can move to the builtin server by removing  the dhcp-leasefile
     configuration item, and adding a dhcp-range configuration. 
 
-
+(7) The following options are supported in DEB_BUILD_OPTIONS
+      noopt   : compile without optimisation.
+      nostrip : don't remove symbols from binary. 
+      nodocs  : omit documentation.
+      notftp  : omit TFTP support.
+      noipv6  : omit IPv6 support.
+      nodbus  : omit DBus support.
+      nortc   : compile alternate mode suitable for systems without an RTC.
+      noi18n  : omit translations and internationalistaion support.

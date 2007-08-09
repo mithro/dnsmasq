@@ -1,3 +1,16 @@
+dnsmasq (2.40-1) unstable; urgency=low
+
+   * New upstream.
+   * Fix manpage typo. (closes: #429412)
+   * Fix dnsmasq.conf typos (closes: #429929)
+   * Handle DEB_BUILD_OPTIONS nostrip and noopt (closes: #436784)
+   * Add DEB_BUILD_OPTIONS for nodocs, notftp, noipv6, 
+     nodbus, noi18n and nortc.
+   * Create DEBIAN/md5sums file in package.
+   * Add status function to init script. (closes: #439316)
+			
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 9 Aug 2007 10:24:18 +0000
+
 dnsmasq (2.39-1) unstable; urgency=low
 
    * New upstream.
