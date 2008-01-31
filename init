@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:       dnsmasq $named
+# Provides:       dnsmasq
 # Required-Start: $network $remote_fs $syslog
 # Required-Stop:  $network $remote_fs $syslog
 # Default-Start:  2 3 4 5
@@ -18,10 +18,12 @@ DESC="DNS forwarder and DHCP server"
 # Most configuration options in /etc/default/dnsmasq are deprecated
 # but still honoured.
 
+ENABLED=1
 if [ -r /etc/default/$NAME ]; then
 	. /etc/default/$NAME
 fi
 
+test "$ENABLED" != "0" || exit 0
 test -x $DAEMON || exit 0
 
 # RESOLV_CONF:

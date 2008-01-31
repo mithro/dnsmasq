@@ -1,3 +1,17 @@
+dnsmasq (2.41-1) unstable; urgency=low
+
+   * New upstream.
+   * Fix typo. (closes: #448038)
+   * Fix DHCP problem interoperating with Sony Ericsson K610i (closes: #451871)
+   * Split binary packages into dnsmasq and dnsmasq-base (closes: #463407)
+   * Add warnings about bad effects of --filterwin2k to default config
+     file. (closes: #464357) 
+   * Don't declare Provides: $named in LSB header. (closes: #464512)
+   * Remove conflict with pdnsd. (closes: #464691)
+   * Add ability to disable dnsmasq in /etc/default/dnsmasq. (closes: #465062)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 31 Jan 2008 20:25:28 +0000
+
 dnsmasq (2.40-1) unstable; urgency=low
 
    * New upstream.
