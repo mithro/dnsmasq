@@ -1,4 +1,4 @@
-dnsmasq is Copyright (c) 2000 - 2007 Simon Kelley
+dnsmasq is Copyright (c) 2000 - 2008 Simon Kelley
 
 It was downloaded from: http://www.thekelleys.org.uk/dnsmasq/
 
@@ -13,7 +13,8 @@ It was downloaded from: http://www.thekelleys.org.uk/dnsmasq/
    GNU General Public License for more details.
 
 On Debian GNU/Linux systems, the text of the GNU general public license is 
-available in the file /usr/share/common-licenses/GPL
+available in the file /usr/share/common-licenses/GPL-2 or 
+/usr/share/common-licenses/GPL-3
 
 The Debian package of dnsmasq was created by Simon Kelley with assistance 
 from Lars Bahner.

@@ -27,3 +27,12 @@ if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
   fi
 
 fi
+
+# dpkg can botch the change of /usr/share/doc/dnsmasq from
+# directory to symlink. Fix up here.
+if [ ! -h /usr/share/doc/dnsmasq ]; then
+   rmdir /usr/share/doc/dnsmasq
+   cd /usr/share/doc/
+   ln -s /usr/share/doc/dnsmasq-base dnsmasq
+fi
+

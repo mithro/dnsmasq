@@ -1,7 +1,17 @@
+dnsmasq (2.42-1) unstable; urgency=low
+
+   * New upstream.
+   * Fix manpage typos. (closes: #468762)
+   * Use LSB log_*_msg rather than echo in init script. (closes: #473117)
+   * Fix agent-id echo problem. (closes: #473015)
+   * Fixup changing /usr/share/doc/dnsmasq to symlink. (closes: #468763)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 27 Feb 2008 21:15:28 +0000
+
 dnsmasq (2.41-2) unstable; urgency=low
 
    * Fix rules to build binary-arch and binary-indep correctly.
-	
+        
  -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 27 Feb 2008 19:57:10 +0000
 
 dnsmasq (2.41-1) unstable; urgency=low
