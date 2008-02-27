@@ -1,3 +1,9 @@
+dnsmasq (2.41-2) unstable; urgency=low
+
+   * Fix rules to build binary-arch and binary-indep correctly.
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 27 Feb 2008 19:57:10 +0000
+
 dnsmasq (2.41-1) unstable; urgency=low
 
    * New upstream.

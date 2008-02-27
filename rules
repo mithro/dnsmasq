@@ -46,21 +46,15 @@ clean:
 	rm -rf debian/daemon debian/base debian/*~ debian/files debian/substvars
 	make clean
 
-binary-arch:	checkroot 
-	$(checkdir)
-	rm -rf debian/daemon debian/base
+binary-indep:	checkroot
+	rm -rf debian/daemon
 	install -m 755 \
 	        -d debian/daemon/DEBIAN \
-		-d debian/base/DEBIAN \
-	        -d debian/base/usr/share/doc/$(package) \
-		-d debian/base/usr/share/doc/$(package)/examples \
-	        -d debian/daemon/usr/share/doc \
-		-d debian/daemon/etc/init.d \
+		-d debian/daemon/usr/share/doc \
+	        -d debian/daemon/etc/init.d \
 	        -d debian/daemon/etc/resolvconf/update.d \
 	        -d debian/daemon/etc/default \
-		-d debian/daemon/etc/dbus-1/system.d \
-	        -d debian/base/var/run \
-	        -d debian/base/var/lib/misc
+		-d debian/daemon/etc/dbus-1/system.d 
 	install -m 644 debian/conffiles debian/daemon/DEBIAN
 	install -m 755 debian/postinst debian/postrm debian/prerm debian/daemon/DEBIAN
 	install -m 755 debian/init debian/daemon/etc/init.d/dnsmasq
@@ -69,6 +63,21 @@ binary-arch:	checkroot
 	install -m 644 dnsmasq.conf.example debian/daemon/etc/dnsmasq.conf
 	install -m 644 dbus/dnsmasq.conf debian/daemon/etc/dbus-1/system.d/dnsmasq.conf
 	ln -s $(package) debian/daemon/usr/share/doc/dnsmasq
+	cd debian/daemon && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums	
+	dpkg-gencontrol -pdnsmasq -Pdebian/daemon
+	chown -R root.root debian/daemon
+	chmod -R g-ws debian/daemon
+	dpkg --build debian/daemon ..
+
+binary-arch:	checkroot 
+	$(checkdir)
+	rm -rf debian/base
+	install -m 755 \
+		-d debian/base/DEBIAN \
+	        -d debian/base/usr/share/doc/$(package) \
+		-d debian/base/usr/share/doc/$(package)/examples \
+	        -d debian/base/var/run \
+	        -d debian/base/var/lib/misc
 	make $(TARGET) PREFIX=/usr DESTDIR=`pwd`/debian/base CFLAGS="$(CFLAGS)" COPTS="$(COPTS)" CC=gcc AWK=gawk
 ifeq (,$(findstring nodocs,$(DEB_BUILD_OPTIONS)))
 	install -m 644 doc.html debian/base/usr/share/doc/$(package)/.
@@ -94,14 +103,11 @@ endif
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	strip -R .note -R .comment debian/base/usr/sbin/dnsmasq
 endif
-	cd debian/daemon && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums
 	cd debian/base && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums
 	dpkg-shlibdeps debian/base/usr/sbin/dnsmasq
-	dpkg-gencontrol -pdnsmasq -Pdebian/daemon
 	dpkg-gencontrol -pdnsmasq-base -Pdebian/base
-	chown -R root.root debian/base debian/daemon
-	chmod -R g-ws debian/base debian/daemon
-	dpkg --build debian/daemon ..
+	chown -R root.root debian/base
+	chmod -R g-ws debian/base 
 	dpkg --build debian/base ..
 
 define checkdir
@@ -110,9 +116,8 @@ endef
 
 # Below here is fairly generic really
 
-binary:		binary-arch
+binary:		binary-arch binary-indep
 build:		
-binary-indep:
           
 checkroot:
 	test root = "`whoami`"
