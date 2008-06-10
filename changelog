@@ -1,3 +1,9 @@
+dnsmasq (2.42-2) unstable; urgency=low
+
+   * Error check in postinst file (closes: 485645)
+        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Tue, 10 Jun 2008 20:25:10 +0000
+
 dnsmasq (2.42-1) unstable; urgency=low
 
    * New upstream.
