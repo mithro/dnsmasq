@@ -1,6 +1,12 @@
+dnsmasq (2.42-3) unstable; urgency=low
+
+   * Fix thinko in init script, breaks status command. (closes: 486455)
+        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Mon, 16 Jun 2008 11:26:20 +0000
+
 dnsmasq (2.42-2) unstable; urgency=low
 
-   * Error check in postinst file (closes: 485645)
+   * Error check in postinst file. (closes: 485645)
         
  -- Simon Kelley <simon@thekelleys.org.uk>  Tue, 10 Jun 2008 20:25:10 +0000
 
