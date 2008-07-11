@@ -1,3 +1,10 @@
+dnsmasq (2.44-1) unstable; urgency=high
+
+   * New upstream - bugfix release for 2.43.
+   * Fix crash in netlink code. (closes: #491289)
+        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 11 Jul 2008 19:39:10 +0000
+
 dnsmasq (2.43-1) unstable; urgency=high
 
    * New upstream.
