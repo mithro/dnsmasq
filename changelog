@@ -1,3 +1,15 @@
+dnsmasq (2.45-1~bpo40+1) etch-backports; urgency=low
+
+  * Rebuild for etch, no changes.
+
+ -- Jeremy Lainé <jeremy.laine@m4x.org>  Fri, 24 Oct 2008 13:23:05 +0200
+
+dnsmasq (2.45-1) unstable; urgency=high
+
+   * New upstream - fixes regression when min-port not set.
+	        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 20 Jul 2008 19:27:11 +0000
+	
 dnsmasq (2.44-1) unstable; urgency=high
 
    * New upstream - bugfix release for 2.43.
