@@ -53,6 +53,7 @@ binary-indep:	checkroot
 	        -d debian/daemon/DEBIAN \
 		-d debian/daemon/usr/share/doc \
 	        -d debian/daemon/etc/init.d \
+		-d debian/daemon/etc/dnsmasq.d \
 	        -d debian/daemon/etc/resolvconf/update.d \
 	        -d debian/daemon/etc/default \
 		-d debian/daemon/etc/dbus-1/system.d 

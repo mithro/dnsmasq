@@ -1,13 +1,16 @@
-dnsmasq (2.45-1+lenny1) stable-security; urgency=high
+dnsmasq (2.46-1) unstable; urgency=low
 
-   * Fix remote buffer overflow vulnerability in TFTP server.
-     This is Bugtraq id: 36121, CVE: 2009-2957	
-   * Fix remote crash bug in TFTP server.
-     This is Bugtraq id: 36120, CVE: 2009-2958
-   * Both of these require --enable-tftp to be set before the
-     vulnerability is exposed.
+   * New upstream. (closes: #499162) (closes: #499007)
+   * Remove from init script start-stop-daemon call to kill
+     child processes. This is not needed since dnsmasq is 
+     carefully written to kill child processes, and it interacts
+     badly with "private" instances of dnsmasq. (closes: #505523)
+   * Provide /etc/dnsmasq.d and alter the installed /etc/default/dnsmasq
+     so that /etc/dnsmasq.d is read. This provides a drop-directory where
+     libvirt can add options to make the system dnsmasq automatically 
+     play nice with libvirt's private instances. (closes: #505522)
 	        
- -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 23 Aug 2009 20:14:21 +0000
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 13 Nov 2008 20:15:31 +0000
 
 dnsmasq (2.45-1) unstable; urgency=high
 

@@ -86,6 +86,7 @@ start()
 		${DOMAIN_SUFFIX:+ -s $DOMAIN_SUFFIX} \
 		${RESOLV_CONF:+ -r $RESOLV_CONF} \
 		${CACHESIZE:+ -c $CACHESIZE} \
+	        ${CONFIG_DIR:+ -7 $CONFIG_DIR} \
 		${DNSMASQ_OPTS:+ $DNSMASQ_OPTS} \
 		|| return 2
 }
@@ -116,9 +117,6 @@ stop()
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile /var/run/$NAME.pid --name $NAME
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
-	# Wait for children to finish too
-	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
-	[ "$?" = 2 ] && return 2
 	rm -f /var/run/$NAME.pid   # Doesn't delete its own pidfile
 	return "$RETVAL"
 }
