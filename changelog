@@ -1,3 +1,24 @@
+dnsmasq (2.47-1) unstable; urgency=low
+
+   * New upstream.
+   * Handle the "ENABLED" flag in the init script a bit more 
+     intelligently. The "stop" and "status" functions continue
+     to work even when disabled, but a failed "stop" becomes 
+     silent and returns zero exit code.
+   * Don't explicitly kill dnsmasq at system shutdown, rely on the 
+     sendsigs script instead which is quicker. (closes: #506734)
+   * Store the PID-file in /var/run/dnsmasq. This directory is owned by
+     user "dnsmasq", so that dnsmasq can delete the PID-file on
+     shutdown. This ensures that the the PID-file goes even when dnsmasq 
+     is stopped by sendsigs. (closes: #508560) 
+   * Bump standards-version to 3.8.0 (no changes required.)
+   * /usr/sbin/adduser -> adduser in postinst. Lintian fix.
+   * Handle IPv6 addresses in "tentative" state better. (closes: #507646) 
+   * Add DBus introspection support. (closes: #508774)
+   * Fix Dbus configuration. (closes: #510649)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Mon, 2 Feb 2009 13:39:11 +0000
+
 dnsmasq (2.46-1) unstable; urgency=low
 
    * New upstream. (closes: #499162) (closes: #499007)
