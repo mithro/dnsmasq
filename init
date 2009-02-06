@@ -71,10 +71,19 @@ fi
 
 start()
 {
-	# Return
+        # Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
+
+        # /var/run may be volatile, so we need to ensure that
+        # /var/run/dnsmasq exists here as well as in postinst
+        if [ ! -d /var/run/dnsmasq ]; then
+           mkdir /var/run/dnsmasq || return 2
+           chown dnsmasq /var/run/dnsmasq || return 2
+           chgrp nogroup /var/run/dnsmasq || return 2
+        fi
+
 	start-stop-daemon --start --quiet --pidfile /var/run/dnsmasq/$NAME.pid --exec $DAEMON --test > /dev/null || return 1
 	start-stop-daemon --start --quiet --pidfile /var/run/dnsmasq/$NAME.pid --exec $DAEMON -- \
 		-x /var/run/dnsmasq/$NAME.pid \

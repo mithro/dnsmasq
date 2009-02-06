@@ -1,3 +1,12 @@
+dnsmasq (2.47-2) unstable; urgency=low
+   * Check that /etc/init.d/dnsmasq is executable in postinst in case
+     the daemon has been  disabled that way. (closes: #514314)
+   * Ensure that /var/run/dnsmasq exists and has the right permissions
+     before running dnsmasq. On some systems /var/run is cleared over 
+     reboot. (closes: #514317)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 6 Feb 2009 09:38:21 +0000
+	
 dnsmasq (2.47-1) unstable; urgency=low
 
    * New upstream.

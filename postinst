@@ -23,21 +23,22 @@ if [ "$1" = "configure" ]; then
   fi
 fi
 
-update-rc.d dnsmasq start 15 2 3 4 5 . stop 85 1 . >/dev/null
+if [ -x /etc/init.d/dnsmasq ]; then
+   update-rc.d dnsmasq start 15 2 3 4 5 . stop 85 1 . >/dev/null
 
-if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
-  if [ -e /var/run/dnsmasq/dnsmasq.pid ]; then
-      ACTION=restart
-  else
-      ACTION=start
-  fi
+   if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
+      if [ -e /var/run/dnsmasq/dnsmasq.pid ]; then
+          ACTION=restart
+      else
+          ACTION=start
+      fi
 
-  if [ -x /usr/sbin/invoke-rc.d ] ; then
-    invoke-rc.d dnsmasq $ACTION || true
-  else
-    /etc/init.d/dnsmasq $ACTION || true
-  fi
-
+      if [ -x /usr/sbin/invoke-rc.d ] ; then
+         invoke-rc.d dnsmasq $ACTION || true
+      else
+         /etc/init.d/dnsmasq $ACTION || true
+      fi
+   fi
 fi
 
 # dpkg can botch the change of /usr/share/doc/dnsmasq from
