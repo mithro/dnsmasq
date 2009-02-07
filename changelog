@@ -1,4 +1,12 @@
+dnsmasq (2.47-3) unstable; urgency=low
+
+   * Fix bashism in init script. (closes: #514397)
+   * Tweak logging in init script.
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sat, 7 Feb 2009 19:25:23 +0000
+
 dnsmasq (2.47-2) unstable; urgency=low
+
    * Check that /etc/init.d/dnsmasq is executable in postinst in case
      the daemon has been  disabled that way. (closes: #514314)
    * Ensure that /var/run/dnsmasq exists and has the right permissions

@@ -13,8 +13,7 @@ if [ "$1" = "configure" ]; then
   # has to be owned by "dnsmasq" do that the file can be unlinked.
   if [ ! -d /var/run/dnsmasq ]; then
     mkdir /var/run/dnsmasq
-    chown dnsmasq /var/run/dnsmasq
-    chgrp nogroup /var/run/dnsmasq
+    chown dnsmasq:nogroup /var/run/dnsmasq
   fi
 
   # handle new location of pidfile during an upgrade
