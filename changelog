@@ -1,3 +1,15 @@
+dnsmasq (2.48-1) unstable; urgency=low
+
+   * New upstream.
+   * Detect and ignore duplicate configuration files. (closes: #516234)
+   * Add 2 second sleep between stop and start during initscript restart.
+   * Make dependency on dnsmasq-base in dnsmasq package versioned, so that
+     installing the latest dnsmasq will install the latest dnsmasq-base
+     too. (closes: #523955)
+   * Add nodhcp DEB_BUILD_OPTIONS option.
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 29 May 2009 10:20:23 +0000
+
 dnsmasq (2.47-3) unstable; urgency=low
 
    * Fix bashism in init script. (closes: #514397)

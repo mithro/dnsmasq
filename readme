@@ -45,10 +45,11 @@ Notes on configuring dnsmasq as packaged for Debian.
       nostrip : don't remove symbols from binary. 
       nodocs  : omit documentation.
       notftp  : omit TFTP support.
+      nodhcp  : omit DHCP support.
       noipv6  : omit IPv6 support.
       nodbus  : omit DBus support.
       nortc   : compile alternate mode suitable for systems without an RTC.
-      noi18n  : omit translations and internationalistaion support.
+      noi18n  : omit translations and internationalisation support.
 
 (8) Dnsmasq comes as two packages - dnsmasq-base and
     dnsmasq. dnsmasq-base provides the dnsmasq executable and

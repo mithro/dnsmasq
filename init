@@ -206,7 +206,8 @@ case "$1" in
 	stop_resolvconf
 	log_daemon_msg "Restarting $DESC" "$NAME"
 	stop
-	case "$?" in
+	sleep 2
+        case "$?" in
 		0|1)
 			start
 			case "$?" in

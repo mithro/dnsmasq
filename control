@@ -1,13 +1,13 @@
 Source: dnsmasq
 Section: net
 Priority: optional
-Build-depends: gettext, libdbus-1-dev (>=0.61), gawk
+Build-depends: gettext, libdbus-1-dev (>=0.61)
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
 Standards-Version: 3.8.0
 
 Package: dnsmasq
 Architecture: all
-Depends: netbase, adduser, dnsmasq-base
+Depends: netbase, adduser, dnsmasq-base(=${source:Version})
 Suggests: resolvconf
 Conflicts: resolvconf (<<1.15)
 Description: A small caching DNS proxy and DHCP/TFTP server

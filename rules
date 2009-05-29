@@ -33,6 +33,10 @@ ifneq (,$(findstring notftp,$(DEB_BUILD_OPTIONS)))
      COPTS += -DNO_TFTP
 endif
 
+ifneq (,$(findstring nodhcp,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DNO_DHCP
+endif
+
 ifneq (,$(findstring nortc,$(DEB_BUILD_OPTIONS)))
      COPTS += -DHAVE_BROKEN_RTC
 endif
@@ -80,7 +84,7 @@ binary-arch:	checkroot
 		-d debian/base/usr/share/doc/$(package)/examples \
 	        -d debian/base/var/run \
 	        -d debian/base/var/lib/misc
-	make $(TARGET) PREFIX=/usr DESTDIR=`pwd`/debian/base CFLAGS="$(CFLAGS)" COPTS="$(COPTS)" CC=gcc AWK=gawk
+	make $(TARGET) PREFIX=/usr DESTDIR=`pwd`/debian/base CFLAGS="$(CFLAGS)" COPTS="$(COPTS)" CC=gcc
 ifeq (,$(findstring nodocs,$(DEB_BUILD_OPTIONS)))
 	install -m 644 doc.html debian/base/usr/share/doc/$(package)/.
 	install -m 644 setup.html debian/base/usr/share/doc/$(package)/.
@@ -89,6 +93,8 @@ ifeq (,$(findstring nodocs,$(DEB_BUILD_OPTIONS)))
 	gzip -9 debian/base/usr/share/doc/$(package)/FAQ
 	install -m 644 CHANGELOG debian/base/usr/share/doc/$(package)/changelog
 	gzip -9 debian/base/usr/share/doc/$(package)/changelog
+	install -m 644 CHANGELOG.archive debian/base/usr/share/doc/$(package)/changelog.archive
+	gzip -9 debian/base/usr/share/doc/$(package)/changelog.archive
 	install -m 644 dbus/DBus-interface debian/base/usr/share/doc/$(package)/.
 	gzip -9 debian/base/usr/share/doc/$(package)/DBus-interface	
 endif
