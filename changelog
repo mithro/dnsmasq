@@ -1,3 +1,11 @@
+dnsmasq (2.48-2) unstable; urgency=low
+   
+   * Change dnsmasq -> dnsmasq-base dependency to >= to allow binNMU,
+     fixes Lintian error.
+   * Bump standards-version to 3.8.1
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 5 Jun 2009 10:58:33 +0000
+
 dnsmasq (2.48-1) unstable; urgency=low
 
    * New upstream.
