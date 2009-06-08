@@ -1,3 +1,10 @@
+dnsmasq (2.49-1) unstable; urgency=low
+   
+   * New upstream.
+   * Log TFTP "file not found" errors. (closes: #532201)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Mon, 8 Jun 2009 22:03:23 +0000
+	
 dnsmasq (2.48-2) unstable; urgency=low
    
    * Change dnsmasq -> dnsmasq-base dependency to >= to allow binNMU,
