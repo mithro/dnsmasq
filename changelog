@@ -1,3 +1,11 @@
+dnsmasq (2.50-1) unstable; urgency=high
+   
+   * New upstream, fixes remote vulns in TFTP server. 
+     Bugtraq id: 36120,36121 CVE: 2009-2957,2009-2958
+        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 21 Aug 2009 10:25:13 +0000
+
+        
 dnsmasq (2.49-1) unstable; urgency=low
    
    * New upstream.
