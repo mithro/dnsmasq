@@ -1,3 +1,14 @@
+dnsmasq (2.45-1+lenny1) stable-security; urgency=high
+
+   * Fix remote buffer overflow vulnerability in TFTP server.
+     This is Bugtraq id: 36121, CVE: 2009-2957	
+   * Fix remote crash bug in TFTP server.
+     This is Bugtraq id: 36120, CVE: 2009-2958
+   * Both of these require --enable-tftp to be set before the
+     vulnerability is exposed.
+	        
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 23 Aug 2009 20:14:21 +0000
+
 dnsmasq (2.45-1) unstable; urgency=high
 
    * New upstream - fixes regression when min-port not set.
