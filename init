@@ -17,10 +17,16 @@ DESC="DNS forwarder and DHCP server"
 
 # Most configuration options in /etc/default/dnsmasq are deprecated
 # but still honoured.
-
 ENABLED=1
 if [ -r /etc/default/$NAME ]; then
 	. /etc/default/$NAME
+fi
+
+# Get the system locale, so that messages are in the correct language, and the 
+# charset for IDN is correct
+if [ -r /etc/default/locale ]; then
+        . /etc/default/locale
+        export LANG
 fi
 
 test -x $DAEMON || exit 0
@@ -57,11 +63,16 @@ fi
 # that it provides as the default.  Otherwise use /etc/resolv.conf as
 # the default.
 #
-# This setting can be overridden by setting the RESOLV_CONF environment
-# variable in /etc/default/dnsmasq or by including a resolv-file
-# line in /etc/dnsmasq.conf .
+# If IGNORE_RESOLVCONF is set in /etc/default/dnsmasq or an explicit
+# filename is set there then this inhibits the use of the resolvconf-provided
+# information.
+#
+# Note that if the resolvconf package is installed it is not possible to 
+# override it just by configuration in /etc/dnsmasq.conf, it is necessary
+# to set IGNORE_RESOLVCONF=yes in /etc/default/dnsmasq.
 
 if [ ! "$RESOLV_CONF" ] &&
+   [ ! "$IGNORE_RESOLVCONF" ] &&
    [ -x /sbin/resolvconf ]
 then
 	RESOLV_CONF=/var/run/dnsmasq/resolv.conf

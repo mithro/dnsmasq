@@ -37,6 +37,10 @@ ifneq (,$(findstring nodhcp,$(DEB_BUILD_OPTIONS)))
      COPTS += -DNO_DHCP
 endif
 
+ifneq (,$(findstring noscript,$(DEB_BUILD_OPTIONS)))
+     COPTS += -DNO_SCRIPT
+endif
+
 ifneq (,$(findstring nortc,$(DEB_BUILD_OPTIONS)))
      COPTS += -DHAVE_BROKEN_RTC
 endif

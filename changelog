@@ -1,11 +1,28 @@
+dnsmasq (2.51-1) unstable; urgency=low
+   
+   * New upstream.
+   * Bump standards-version to 3.8.2 (no changes needed).
+   * Ignore files named *.dpkg-old, *.dpkg-new and *.dpkg-dist 
+     in /etc/dnsmasq.d
+   * Provide a facility in /etc/default/dnsmasq to disable dnsmasq's
+     interaction with the resolvconf package. This is needed because
+     setting "resolv-file" in /etc/dnsmasq.conf won't override a
+     file given on the command line from resolvconf. (closes: #528762)
+   * Check for duplicate names/addresses in /etc/ethers. (closes: #523787)
+   * Set the system locale in the environment before invoking dnsmasq,
+     so that translated messages work, and IDN uses the correct charset.
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 4 Oct 2009 14:01:14 +0000
+
+
 dnsmasq (2.50-1) unstable; urgency=high
    
-   * New upstream, fixes remote vulns in TFTP server. 
-     Bugtraq id: 36120,36121 CVE: 2009-2957,2009-2958
-        
+   * New upstream, fixes remote vulns in TFTP server.
+     Bugtraq id: 36120,36121 CVE: 2009-2957,2009-2958	
+	
  -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 21 Aug 2009 10:25:13 +0000
 
-        
+	
 dnsmasq (2.49-1) unstable; urgency=low
    
    * New upstream.
