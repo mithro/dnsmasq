@@ -1,3 +1,11 @@
+dnsmasq (2.52-1) unstable; urgency=low
+   
+   * New upstream.
+   * Be more conservative with "A for A" processing. (closes: #553337)
+   * Add README file in /etc/dnsmasq.d to explain what's going on.
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 14 Jan 2010 09:53:13 +0000
+
 dnsmasq (2.51-1) unstable; urgency=low
    
    * New upstream.
