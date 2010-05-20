@@ -214,12 +214,19 @@ case "$1" in
 	;;
   restart|force-reload)
 	test "$ENABLED" != "0" || exit 1
-	stop_resolvconf
+	$DAEMON --test ${CONFIG_DIR:+ -7 $CONFIG_DIR} ${DNSMASQ_OPTS:+ $DNSMASQ_OPTS} >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+	    NAME="configuration syntax check"
+	    RETVAL="2"
+	else   
+	    stop_resolvconf
+	    stop
+	    RETVAL="$?"
+        fi
 	log_daemon_msg "Restarting $DESC" "$NAME"
-	stop
-	sleep 2
-        case "$?" in
+	case "$RETVAL" in
 		0|1)
+		        sleep 2
 			start
 			case "$?" in
 				0)

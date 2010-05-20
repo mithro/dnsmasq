@@ -1,3 +1,16 @@
+dnsmasq (2.53-1) unstable; urgency=low
+   
+   * New upstream.
+   * Fix FTBFS on kFreeBSD. (closes: #566334)
+   * Teach initscript to check the config file syntax before
+     restarting dnsmasq. An error will leave the old dnsmasq still
+     running, rather than killing the old daemon and then failing to start
+     a new one.	
+   * Tweak DHCP behaviour when a physical interface has two addresses on
+     the same subnet. (closes: #581064)
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 20 May 2010 11:41:23 +0000
+
 dnsmasq (2.52-1) unstable; urgency=low
    
    * New upstream.
