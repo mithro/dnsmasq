@@ -1,3 +1,10 @@
+dnsmasq (2.55-1) unstable; urgency=low
+   
+   * New upstream.
+   * Fix crash when /etc/ethers in use. (closes: #584754)
+		
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 6 Jun 2010 20:33:13 +0000
+
 dnsmasq (2.53-1) unstable; urgency=low
    
    * New upstream.
