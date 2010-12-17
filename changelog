@@ -1,15 +1,25 @@
-dnsmasq (2.55-2+deb6u1) squeeze-lts; urgency=medium
+dnsmasq (2.56-1) unstable; urgency=low
 
-  * Non-maintainer upload by the Squeeze LTS team.
-  * Fix CVE-2015-3294: remote attackers could read process memory and cause
-    DoS via malformed DNS requests.
+   * New upstream.
+   * Die if non-option args present on the command-line. (closes: #589885)
+   * Tighten up use of IGNORE_RESOLVCONF in initscript. (closes: #575345)
+   * Update URL of ISC's explanation of dhcp-authoritative in the example
+     configuration file. (closes: #604870)
+   * Cosmetic changes to dnsmasq.conf.example. (closes: #598790) (closes: #606615)
+   * Add other resolv.conf locations to FILES section of the manual
+     page. (closes: #603505)
+   * Clarify configuration for static IP addresses in the absence of
+     resolvconf in the Debian readme file. (closes: #604035)
+   * Fix handling of obsolete DNSMASQ_INTERFACE and DNSMASQ_EXCEPT
+     variables in /etc/default/dnsmasq. (LP: #691329)
+   * Provide debian/source/format.
 
- -- Santiago Ruano Rincón <santiagorr@riseup.net>  Wed, 20 May 2015 19:02:52 +0200
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 17 Dec 2010 13:17:33 +0000
 
 dnsmasq (2.55-2) unstable; urgency=high
-  
+	  
    * Fix crash on double free. (closes: #597205)
-		
+	                
  -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 19 Sep 2010 21:45:33 +0000
 
 dnsmasq (2.55-1) unstable; urgency=low
