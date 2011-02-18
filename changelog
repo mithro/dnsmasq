@@ -1,3 +1,14 @@
+dnsmasq (2.57-1) unstable; urgency=low
+
+   * New upstream.
+   * Fix typos in example config file. (closes: #606615)
+   * Bump standards-version to 3.9.1
+   * Add noidn DEB_BUILD_OPTIONS flag.
+   * Don't complain about extra command line arguments if
+     they are empty, as this breaks libvirt. (closes: #613915)
+	
+ -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 18 Feb 2011 09:54:13 +0000
+
 dnsmasq (2.56-1) unstable; urgency=low
 
    * New upstream.
@@ -5,7 +16,8 @@ dnsmasq (2.56-1) unstable; urgency=low
    * Tighten up use of IGNORE_RESOLVCONF in initscript. (closes: #575345)
    * Update URL of ISC's explanation of dhcp-authoritative in the example
      configuration file. (closes: #604870)
-   * Cosmetic changes to dnsmasq.conf.example. (closes: #598790) (closes: #606615)
+   * Cosmetic changes to dnsmasq.conf.example. (closes: #598790)
+   * More dnsmasq.conf.example fixes. (closes: #606615)
    * Add other resolv.conf locations to FILES section of the manual
      page. (closes: #603505)
    * Clarify configuration for static IP addresses in the absence of

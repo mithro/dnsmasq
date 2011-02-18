@@ -57,6 +57,8 @@ Notes on configuring dnsmasq as packaged for Debian.
       nodbus   : omit DBus support.
       nortc    : compile alternate mode suitable for systems without an RTC.
       noi18n   : omit translations and internationalisation support.
+      noidn    : omit international domain name support, must be
+                 combined with noi18n to be effective.
 
 (9) Dnsmasq comes as two packages - dnsmasq-base and
     dnsmasq. dnsmasq-base provides the dnsmasq executable and

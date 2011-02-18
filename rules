@@ -47,6 +47,9 @@ endif
 
 ifneq (,$(findstring noi18n,$(DEB_BUILD_OPTIONS)))
      TARGET = install
+     ifeq (,$(findstring noidn, $(DEB_BUILD_OPTIONS)))
+	COPTS += -DHAVE_IDN
+     endif	
 endif
 
 clean:
