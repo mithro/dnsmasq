@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # debian/rules file - for dnsmasq.
-# Copyright 2001-2008 by Simon Kelley
+# Copyright 2001-2011 by Simon Kelley
 # Based on the sample in the debian hello package which carries the following:
 # Copyright 1994,1995 by Ian Jackson.
 # I hereby give you perpetual unlimited permission to copy,
@@ -21,8 +21,16 @@ endif
 COPTS = 
 TARGET = install-i18n
 
+DEB_BUILD_ARCH_OS := $(shell dpkg-architecture -qDEB_BUILD_ARCH_OS)
+
 ifeq (,$(findstring nodbus,$(DEB_BUILD_OPTIONS)))
      COPTS += -DHAVE_DBUS
+endif
+
+ifeq (,$(findstring noconntrack,$(DEB_BUILD_OPTIONS)))
+ifeq ($(DEB_BUILD_ARCH_OS),linux)
+     COPTS += -DHAVE_CONNTRACK
+endif
 endif
 
 ifneq (,$(findstring noipv6,$(DEB_BUILD_OPTIONS)))
@@ -54,8 +62,9 @@ endif
 
 clean:
 	$(checkdir)
-	rm -rf debian/daemon debian/base debian/*~ debian/files debian/substvars
+	rm -rf debian/daemon debian/base debian/utils debian/*~ debian/files debian/substvars debian/utils-substvars
 	make clean
+	make -C contrib/wrt clean
 
 binary-indep:	checkroot
 	$(checkdir)
@@ -66,16 +75,20 @@ binary-indep:	checkroot
 	        -d debian/daemon/etc/init.d \
 		-d debian/daemon/etc/dnsmasq.d \
 	        -d debian/daemon/etc/resolvconf/update.d \
+		-d debian/daemon/usr/lib/resolvconf/packaging-event.d \
 	        -d debian/daemon/etc/default \
-		-d debian/daemon/etc/dbus-1/system.d 
+		-d debian/daemon/etc/dbus-1/system.d \
+		-d debian/daemon/lib/systemd/system
 	install -m 644 debian/conffiles debian/daemon/DEBIAN
 	install -m 755 debian/postinst debian/postrm debian/prerm debian/daemon/DEBIAN
 	install -m 755 debian/init debian/daemon/etc/init.d/dnsmasq
 	install -m 755 debian/resolvconf debian/daemon/etc/resolvconf/update.d/dnsmasq
+	install -m 755 debian/resolvconf-package debian/daemon/usr/lib/resolvconf/packaging-event.d/dnsmasq
 	install -m 644 debian/default debian/daemon/etc/default/dnsmasq
 	install -m 644 dnsmasq.conf.example debian/daemon/etc/dnsmasq.conf
 	install -m 644 debian/readme.dnsmasq.d debian/daemon/etc/dnsmasq.d/README
-	install -m 644 dbus/dnsmasq.conf debian/daemon/etc/dbus-1/system.d/dnsmasq.conf
+	install -m 644 debian/dbus.conf debian/daemon/etc/dbus-1/system.d/dnsmasq.conf
+	install -m 644 debian/systemd.service debian/daemon/lib/systemd/system/dnsmasq.service
 	ln -s $(package) debian/daemon/usr/share/doc/dnsmasq
 	cd debian/daemon && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums	
 	dpkg-gencontrol -pdnsmasq -Pdebian/daemon
@@ -125,6 +138,34 @@ endif
 	chown -R root.root debian/base
 	chmod -R g-ws debian/base 
 	dpkg --build debian/base ..
+
+ifeq ($(DEB_BUILD_ARCH_OS),linux)
+	rm -rf debian/utils
+	install -m 755 -d debian/utils/DEBIAN \
+                       -d debian/utils/usr/share/man/man1 \
+	               -d debian/utils/usr/bin \
+                       -d debian/utils/usr/share/doc/dnsmasq-utils
+	make -C contrib/wrt PREFIX=/usr DESTDIR=`pwd`/debian/utils CFLAGS="$(CFLAGS)" COPTS="$(COPTS)" CC=gcc
+	install -m 755 contrib/wrt/dhcp_release debian/utils/usr/bin/dhcp_release
+	install -m 644 contrib/wrt/dhcp_release.1 debian/utils/usr/share/man/man1/dhcp_release.1
+	gzip -9 debian/utils/usr/share/man/man1/dhcp_release.1
+	install -m 755 contrib/wrt/dhcp_lease_time debian/utils/usr/bin/dhcp_lease_time
+	install -m 644 contrib/wrt/dhcp_lease_time.1 debian/utils/usr/share/man/man1/dhcp_lease_time.1
+	install -m 644 debian/copyright debian/utils/usr/share/doc/dnsmasq-utils/copyright
+	install -m 644 debian/changelog debian/utils/usr/share/doc/dnsmasq-utils/changelog.Debian
+	gzip -9 debian/utils/usr/share/doc/dnsmasq-utils/changelog.Debian
+	gzip -9 debian/utils/usr/share/man/man1/dhcp_lease_time.1
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	strip -R .note -R .comment debian/utils/usr/bin/dhcp_release
+	strip -R .note -R .comment debian/utils/usr/bin/dhcp_lease_time
+endif	
+	cd debian/utils && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums
+	dpkg-shlibdeps -Tdebian/utils-substvars debian/utils/usr/bin/dhcp_release debian/utils/usr/bin/dhcp_lease_time
+	dpkg-gencontrol -Tdebian/utils-substvars -pdnsmasq-utils -Pdebian/utils
+	chown -R root.root debian/utils
+	chmod -R g-ws debian/utils 
+	dpkg --build debian/utils ..
+endif
 
 define checkdir
 	test -f Makefile -a -f debian/rules

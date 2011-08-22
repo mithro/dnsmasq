@@ -1,3 +1,23 @@
+dnsmasq (2.58-1) unstable; urgency=low
+
+   * New upstream.
+   * Add noconntrack DEB_BUILD_OPTIONS flag.
+   * Improve error message when tag:xxx appears
+     in --dhcp-host (closes: #627986)
+   * Add /usr/lib/resolvconf/packaging-event.d/dnsmasq (closes: #628003)
+   * Update resolvconf hook script to sleep only
+     when necessary. (closes: #627789)
+   * Tweak behaviour of --domain-needed to avoid problems with recursive
+     nameservers _downstream_ of dnsmasq. (closes: #630637)
+   * Allow processes running as uid dnsmasq to send messages on the DBus,
+     so that dnsmasq can return errors. (closes: #635017)
+   * Add /lib/systemd/system/dnsmasq.service (closes: #635753)
+   * New binary package, dnsmasq-utils, containing dhcp_release and
+     dhcp_lease_time from contrib/wrt. Note that these are Linux-specific
+     so this package is Architecture: linux-any (closes: #638136)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Mon, 22 Aug 2011 14:57:03 +0000
+
 dnsmasq (2.57-1) unstable; urgency=low
 
    * New upstream.
@@ -6,7 +26,7 @@ dnsmasq (2.57-1) unstable; urgency=low
    * Add noidn DEB_BUILD_OPTIONS flag.
    * Don't complain about extra command line arguments if
      they are empty, as this breaks libvirt. (closes: #613915)
-	
+
  -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 18 Feb 2011 09:54:13 +0000
 
 dnsmasq (2.56-1) unstable; urgency=low
