@@ -58,7 +58,7 @@ fi
 # within one second of the previous one then dnsmasq may fail to notice the
 # more recent change.  To work around this problem we sleep here to ensure
 # that the new mtime is different.
-if [ -f "$RSLVRLIST_FILE" ] && [ "$(ls -go --time-style='+%s' "$RSLVRLIST_FILE" | { read p h s t n ; echo "$t" ; })" = "$(printf '%(%s)T' "-1")" ] ; then
+if [ -f "$RSLVRLIST_FILE" ] && [ "$(ls -go --time-style='+%s' "$RSLVRLIST_FILE" | { read p h s t n ; echo "$t" ; })" = "$(date +%s)" ] ; then
 	sleep 1
 fi
 
