@@ -1,3 +1,10 @@
+dnsmasq (2.58-3) unstable; urgency=low
+
+   * Fix resolvconf script location. (closes: #641717)
+   * Update systemd service file. (closes: #640095)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 15 Sep 2011 16:33:23 +0000
+
 dnsmasq (2.58-2) unstable; urgency=low
 
    * Fix resolvconf script. (closes: #635383)

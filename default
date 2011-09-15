@@ -7,6 +7,9 @@
 #    more configuration variables.
 # 5) to stop the resolvconf package from controlling dnsmasq's
 #    idea of which upstream nameservers to use.
+
+# NB. If systemd is installed and starting dnsmasq, this file is IGNORED.
+
 # For upgraders from very old versions, all the shell variables set 
 # here in previous versions are still honored by the init script
 # so if you just keep your old version of this file nothing will break.
