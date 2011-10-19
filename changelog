@@ -1,3 +1,9 @@
+dnsmasq (2.59-2) unstable; urgency=low
+
+   * Fix reported version number.
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 19 Oct 2011 09:25:53 +0000
+
 dnsmasq (2.59-1) unstable; urgency=low
 
    * New upstream.
