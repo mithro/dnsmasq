@@ -23,7 +23,7 @@ if [ "$1" = "configure" ]; then
 fi
 
 if [ -x /etc/init.d/dnsmasq ]; then
-   update-rc.d dnsmasq start 15 2 3 4 5 . stop 85 1 . >/dev/null
+   update-rc.d dnsmasq defaults 15 85 >/dev/null
 
    if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
       if [ -e /var/run/dnsmasq/dnsmasq.pid ]; then

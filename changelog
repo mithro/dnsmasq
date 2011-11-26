@@ -1,3 +1,9 @@
+dnsmasq (2.59-3) unstable; urgency=low
+
+   * Stop daemon at runlevels 0, 1 and 6. (closes: #647726)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Sat, 26 Nov 2011 15:28:33 +0000
+
 dnsmasq (2.59-2) unstable; urgency=low
 
    * Fix reported version number.
