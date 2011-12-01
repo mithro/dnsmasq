@@ -1,3 +1,11 @@
+dnsmasq (2.60-1) unstable; urgency=low
+
+   * New upstream.
+   * Bump standards-version to 3.9.2
+   * Fix typo in example config file. (closes: #654897)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 1 Dec 2011 15:49:33 +0000
+
 dnsmasq (2.59-4) unstable; urgency=low
 
    * Supply /etc/insserv.conf.d/dnsmasq (closes: #650540)
@@ -32,7 +40,7 @@ dnsmasq (2.58-3) unstable; urgency=low
 
 dnsmasq (2.58-2) unstable; urgency=low
 
-   * Fix resolvconf script. (closes: #635383)
+   * Fix resolvconf script. (closes: #639963)
 
  -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 1 Sep 2011 10:05:23 +0000
 
@@ -87,41 +95,41 @@ dnsmasq (2.56-1) unstable; urgency=low
  -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 17 Dec 2010 13:17:33 +0000
 
 dnsmasq (2.55-2) unstable; urgency=high
-	  
+
    * Fix crash on double free. (closes: #597205)
-	                
+
  -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 19 Sep 2010 21:45:33 +0000
 
 dnsmasq (2.55-1) unstable; urgency=low
-   
+
    * New upstream.
    * Fix crash when /etc/ethers in use. (closes: #584754)
-		
+
  -- Simon Kelley <simon@thekelleys.org.uk>  Sun, 6 Jun 2010 20:33:13 +0000
 
 dnsmasq (2.53-1) unstable; urgency=low
-   
+
    * New upstream.
    * Fix FTBFS on kFreeBSD. (closes: #566334)
    * Teach initscript to check the config file syntax before
      restarting dnsmasq. An error will leave the old dnsmasq still
      running, rather than killing the old daemon and then failing to start
-     a new one.	
+     a new one.
    * Tweak DHCP behaviour when a physical interface has two addresses on
      the same subnet. (closes: #581064)
-		
+
  -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 20 May 2010 11:41:23 +0000
 
 dnsmasq (2.52-1) unstable; urgency=low
-   
+
    * New upstream.
    * Be more conservative with "A for A" processing. (closes: #553337)
    * Add README file in /etc/dnsmasq.d to explain what's going on.
-		
+
  -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 14 Jan 2010 09:53:13 +0000
 
 dnsmasq (2.51-1) unstable; urgency=low
-   
+
    * New upstream.
    * Bump standards-version to 3.8.2 (no changes needed).
    * Ignore files named *.dpkg-old, *.dpkg-new and *.dpkg-dist 
