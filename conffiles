@@ -3,3 +3,4 @@
 /etc/dnsmasq.conf
 /etc/resolvconf/update.d/dnsmasq
 /etc/dbus-1/system.d/dnsmasq.conf
+/etc/insserv.conf.d/dnsmasq

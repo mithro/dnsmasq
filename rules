@@ -78,7 +78,8 @@ binary-indep:	checkroot
 		-d debian/daemon/usr/lib/resolvconf/dpkg-event.d \
 	        -d debian/daemon/etc/default \
 		-d debian/daemon/etc/dbus-1/system.d \
-		-d debian/daemon/lib/systemd/system
+		-d debian/daemon/lib/systemd/system \
+                -d debian/daemon/etc/insserv.conf.d
 	install -m 644 debian/conffiles debian/daemon/DEBIAN
 	install -m 755 debian/postinst debian/postrm debian/prerm debian/daemon/DEBIAN
 	install -m 755 debian/init debian/daemon/etc/init.d/dnsmasq
@@ -89,6 +90,7 @@ binary-indep:	checkroot
 	install -m 644 debian/readme.dnsmasq.d debian/daemon/etc/dnsmasq.d/README
 	install -m 644 debian/dbus.conf debian/daemon/etc/dbus-1/system.d/dnsmasq.conf
 	install -m 644 debian/systemd.service debian/daemon/lib/systemd/system/dnsmasq.service
+	install -m 644 debian/insserv debian/daemon/etc/insserv.conf.d/dnsmasq
 	ln -s $(package) debian/daemon/usr/share/doc/dnsmasq
 	cd debian/daemon && find . -type f ! -regex '.*DEBIAN/.*' -printf '%P\0' | xargs -r0 md5sum > DEBIAN/md5sums	
 	dpkg-gencontrol -pdnsmasq -Pdebian/daemon

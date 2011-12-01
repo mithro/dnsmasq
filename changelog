@@ -1,3 +1,9 @@
+dnsmasq (2.59-4) unstable; urgency=low
+
+   * Supply /etc/insserv.conf.d/dnsmasq (closes: #650540)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 1 Dec 2011 11:35:13 +0000
+
 dnsmasq (2.59-3) unstable; urgency=low
 
    * Stop daemon at runlevels 0, 1 and 6. (closes: #647726)
