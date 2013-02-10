@@ -1,3 +1,11 @@
+dnsmasq (2.62-3+deb7u1) testing-proposed-updates; urgency=low
+
+  * Non-maintainer upload.
+  * Backport fix for symlink attacks from 2.63-4
+    (Closes: #686484)
+
+ -- Jonathan Wiltshire <jmw@debian.org>  Sun, 10 Feb 2013 21:07:17 +0000
+
 dnsmasq (2.62-3) unstable; urgency=low
 
    * Do resolvconf and /etc/default startup logic when
