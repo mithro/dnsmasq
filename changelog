@@ -1,3 +1,9 @@
+dnsmasq (2.66-4) unstable; urgency=low
+
+   * Update resolvconf script. (closes: #716908)
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 4 Aug 2013 14:48:21 +0000
+
 dnsmasq (2.66-3) unstable; urgency=low
 
    * Update resolvconf script for dnscrypt-proxy integration. (closes: #709179)
