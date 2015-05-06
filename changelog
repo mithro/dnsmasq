@@ -1,3 +1,18 @@
+dnsmasq (2.62-3+deb7u3) wheezy-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * Handle case where SO_REUSEPORT may be defined but not supported by
+    the running kernel.
+    The update for CVE-2015-3294 caused a regression for the armel and armhf
+    builds due to a newer linux-libc-dev package installed in the wheezy
+    chroots used for the build. The libc headers defined SO_REUSEPORT,
+    whereas the kernel in wheezy does not support it uncovering this
+    problem. (Closes: #784571)
+  * Set SO_REUSEADDR as well as SO_REUSEPORT on DHCP sockets when
+    both are available
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Wed, 06 May 2015 21:37:29 +0200
+
 dnsmasq (2.62-3+deb7u2) wheezy-security; urgency=high
 
   * Non-maintainer upload by the Security Team.
