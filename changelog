@@ -1,3 +1,10 @@
+dnsmasq (2.76-4) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix FTCBFS: Use triplet-prefixed tools. (closes: #836072)
+
+ -- Helmut Grohne <helmut@subdivi.de>  Tue, 30 Aug 2016 13:59:12 +0200
+
 dnsmasq (2.76-3) unstable; urgency=medium
 
    * Bump auth zone serial on SIGHUP. (closes: #833733)
