@@ -1,3 +1,13 @@
+dnsmasq (2.76-4.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add two upstream patches to fix binding to an interface being
+    destroyed and recreated. Closes: #834722.
+      + 2675f2061525bc954be14988d64384b74aa7bf8b
+      + 16800ea072dd0cdf14d951c4bb8d2808b3dfe53d
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 26 Nov 2016 20:15:34 +0100
+
 dnsmasq (2.76-4) unstable; urgency=medium
 
   * Non-maintainer upload.
