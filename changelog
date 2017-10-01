@@ -1,3 +1,14 @@
+dnsmasq (2.72-3+deb8u2) jessie-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * CVE-2017-14491: DNS heap buffer overflow
+  * CVE-2017-14492: DHCPv6 RA heap overflow
+  * CVE-2017-14493: DHCPv6 - Stack buffer overflow
+  * CVE-2017-14494: Infoleak handling DHCPv6 forwarded requests
+  * CVE-2017-14491: DNS heap buffer overflow (further fix)
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 01 Oct 2017 19:14:59 +0200
+
 dnsmasq (2.72-3+deb8u1) jessie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.
