@@ -1,0 +1,6 @@
+make-pid-file-creation-immune-to-symlink-attack.patch
+fix-crash-on-receipt-of-certain-malformed-dns-requests.patch
+so_reuseport-may-be-defined-but-not-supported.patch
+security-fix-cve-2017-14491-dns-heap-buffer-overflow.patch
+security-fix-cve-2017-14492-dhcpv6-ra-heap-overflow.patch
+security-fix-cve-2017-14494-infoleak-handling-dhcpv6.patch
