@@ -1,3 +1,9 @@
+dnsmasq (2.78-3) unstable; urgency=high
+
+   * Make failure of pidfile chown a warning. (closes: #889857)
+  
+ -- Simon Kelley <simon@thekelleys.org.uk>  Thu, 8 Feb 2018 21:26:30 +0000
+
 dnsmasq (2.78-2) unstable; urgency=high
 
    * Change ownership of pid file, to keep systemd happy. (closes: #889336)
