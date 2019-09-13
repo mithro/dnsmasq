@@ -1,3 +1,10 @@
+dnsmasq (2.72-3+deb8u5) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS Security Team.
+  * CVE-2019-14513: Improper bounds checking
+
+ -- Jonas Meurer <jonas@freesources.org>  Fri, 13 Sep 2019 11:57:09 +0200
+
 dnsmasq (2.72-3+deb8u4) jessie-security; urgency=medium
 
   * Non-maintainer upload by the LTS team.
