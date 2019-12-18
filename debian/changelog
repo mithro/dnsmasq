@@ -1,3 +1,12 @@
+dnsmasq (2.80-1.1) unstable; urgency=medium
+
+  [ Andreas Metzler ]
+  * Non-maintainer upload.
+  * Apply ab73a746a0d6fcac2e682c5548eeb87fb9c9c82e from upstream GIT to fix
+    build error against nettle 3.5. Closes: #940985
+
+ -- Paul Gevers <elbrus@debian.org>  Wed, 18 Dec 2019 21:23:49 +0100
+
 dnsmasq (2.80-1) unstable; urgency=low
 
    * New upstream. (closes: #837602) (closes: #794640) (closes: #794636)
