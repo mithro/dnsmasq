@@ -1,0 +1,5 @@
+# Automatically added by dh_runit/UNDECLARED
+# Unlike postrm, I can be sure, that runit-helper is present on
+# postinst.
+NAME='dnsmasq' ENABLE='yes' SINCE='0.0-0' /lib/runit-helper/runit-helper postinst "$@"
+# End automatically added section
