@@ -1,3 +1,10 @@
+dnsmasq (2.81-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * source only upload to enable migration (Closes: #962700)
+
+ -- Paul Gevers <elbrus@debian.org>  Tue, 23 Jun 2020 20:20:12 +0200
+
 dnsmasq (2.81-3) unstable; urgency=low
 
    * Fixes to control file for bug 958100
