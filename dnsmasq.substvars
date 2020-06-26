@@ -1,3 +1,0 @@
-runit:Conflicts=runit (<< 2.1.2-36~)
-runit:Breaks=runit (<< 2.1.2-36~)
-misc:Depends=runit-helper (>= 2.8.14~)
