@@ -1,3 +1,17 @@
+dnsmasq (2.76-5+deb9u3) stretch-security; urgency=high
+  
+  * Non-maintainer upload by the LTS Security Team.
+  * CVE-2020-25681, CVE-2020-25682, CVE-2020-25683, CVE-2020-25687: a
+    heap-based buffer overflow was discovered in dnsmasq when DNSSEC is
+    enabled. All are fixed with the same patch.
+  * CVE-2020-25684: allows an off-path (non-MITM) attacker to attempt a
+    DNS Cache Poisoning attack. If chained with CVE-2020-25685 or
+    CVE-2020-25686, the attack complexity of a successful attack is
+    reduced. (CVE-2020-25685 and CVE-2020-25686 are not fixed in this
+    version, see security-tracker.debian.org.)
+
+ -- Sylvain Beucler <beuc@debian.org>  Sat, 20 Mar 2021 15:14:01 +0100
+
 dnsmasq (2.76-5+deb9u2) stretch; urgency=medium
 
   * Non-maintainer upload.
