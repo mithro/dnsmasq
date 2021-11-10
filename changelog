@@ -1,3 +1,10 @@
+dnsmasq (2.86-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix --address=/#/...... which was lost in 2.86. (closes: #995655)
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 10 Nov 2021 22:05:45 +0100
+
 dnsmasq (2.86-1) unstable; urgency=low
 
    * Fix debian/changelog format error. (closes: #986626)
