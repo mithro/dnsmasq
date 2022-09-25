@@ -1,0 +1,12 @@
+# Automatically added by dh_runit/2.14.2
+# Unfortunately, we can not assume, that bin:runit-helper package
+# is installed at postrm stage.
+#
+# The only other option is embed whole runit-helper script here,
+# into postrm script of -run package, but it would be like static
+# linking, requiring rebuild of all reverse dependencies on every
+# change of dh-runit.
+if [ -z "${DPKG_ROOT:-}" ] && [ -x /lib/runit-helper/runit-helper ] ; then
+   NAME='dnsmasq' ENABLE='yes' ONUPGRADE='restart' /lib/runit-helper/runit-helper postrm "$@"
+fi
+# End automatically added section

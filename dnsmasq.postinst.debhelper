@@ -1,0 +1,7 @@
+# Automatically added by dh_runit/2.14.2
+# Unlike postrm, I can be sure, that runit-helper is present on
+# postinst.
+if [ -z "${DPKG_ROOT:-}" ] ; then
+    NAME='dnsmasq' ENABLE='yes' ONUPGRADE='restart' /lib/runit-helper/runit-helper postinst "$@"
+fi
+# End automatically added section
