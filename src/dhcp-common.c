@@ -394,7 +394,10 @@ static struct dhcp_config *find_config_match(struct dhcp_config *configs,
 
   
   if (!hwaddr)
+  {
+    my_syslog(MS_DHCP | LOG_INFO, "client hwaddr is NULL");
     return NULL;
+  }
 
   /* use match with fewest wildcard octets */
   for (candidate = NULL, count = 0, config = configs; config; config = config->next)

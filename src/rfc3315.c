@@ -636,7 +636,10 @@ static int dhcp6_no_relay(struct state *state, int msg_type, unsigned char *inbu
 	solicit_tags = tagif;
 	
 	if (ignore)
+	{
+	  my_syslog(MS_DHCP | LOG_INFO, "Found config is set to ignore");
 	  return 0;
+	}
 	
 	/* reset USED bits in leases */
 	lease6_reset();
