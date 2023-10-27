@@ -1,0 +1,21 @@
+Tests: compile-time-options
+Depends: dnsmasq,
+         dnsmasq-base,
+Restrictions: needs-root,
+              isolation-container,
+
+Tests: compile-time-options-lua
+Depends: dnsmasq,
+         dnsmasq-base-lua,
+Restrictions: needs-root,
+              isolation-container,
+
+Tests: get-address_query-dns_check-utils
+Depends: bind9,
+         bind9-dnsutils,
+         dnsmasq,
+         dnsmasq-base,
+         dnsmasq-utils,
+Restrictions: needs-root,
+              allow-stderr,
+              isolation-container,

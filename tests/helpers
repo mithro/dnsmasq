@@ -1,0 +1,22 @@
+match_or_exit () {
+	file_to_match="$1"
+	pattern_file="$2"
+	
+	while read line_to_match <&3 && read pattern_line <&4 ; do
+		if [ "${line_to_match##$pattern_line}" ]; then
+			echo '!!! MISMATCH !!!' >&2
+			echo "Line:    ${line_to_match}" >&2
+			echo "Pattern: ${pattern_line}" >&2
+			exit 1
+		fi;
+	done 3<"${file_to_match}" 4<"${pattern_file}"
+}
+
+linecount () {
+	wc -l $1 | cut -d' ' -f1
+} 
+
+error_exit () {
+	echo "ERROR: $1"
+	exit 1
+}
