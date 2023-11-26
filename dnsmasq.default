@@ -16,10 +16,10 @@
 #DOMAIN_SUFFIX=`dnsdomainname`
 #DNSMASQ_OPTS="--conf-file=/etc/dnsmasq.alt"
 
-# Whether or not to run the dnsmasq daemon; set to 0 to disable.
-# Note that this is only valid when using SYSV init. For systemd,
-# use "systemctl disable dnsmasq"
-ENABLED=1
+# The dnsmasq daemon is run by default conforming to the Debian Policy.
+# To disable the service,
+# for SYSV init, use "update-rc.d dnsmasq disable",
+# for systemd, use "systemctl disable dnsmasq".
 
 # By default search this drop directory for configuration options.
 # Libvirt leaves a file here to make the system dnsmasq play nice.

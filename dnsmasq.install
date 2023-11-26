@@ -1,0 +1,10 @@
+#!/usr/bin/dh-exec
+debian/resolvconf => /etc/resolvconf/update.d/dnsmasq
+debian/resolvconf-package => /usr/lib/resolvconf/dpkg-event.d/dnsmasq
+debian/installed-marker => /usr/share/dnsmasq/installed-marker
+dnsmasq.conf.example => /etc/dnsmasq.conf
+debian/readme.dnsmasq.d => /etc/dnsmasq.d/README
+debian/systemd.service => /lib/systemd/system/dnsmasq.service
+debian/systemd@.service => /lib/systemd/system/dnsmasq@.service
+debian/tmpfiles.conf => /usr/lib/tmpfiles.d/dnsmasq.conf
+debian/insserv => /etc/insserv.conf.d/dnsmasq
