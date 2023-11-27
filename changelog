@@ -34,15 +34,16 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
         lintian warning dbus-policy-in-etc fixed
     Deleted files:
     d/*conffiles, d/lintian-override
-        These are not in in use anymore
+        These are not in use anymore
   * Deal with a removed conffile and changed links
     Modified files:
     d/dnsmasq-base.{postinst,postrm}
     New files:
     d/dnsmasq-base.maintscript
     d/dnsmasq-base-lua.maintscript
+  * Use dh_auto_build and dh_auto_clean, instead of calling make directly
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Mon, 27 Nov 2023 19:27:53 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Mon, 27 Nov 2023 20:08:06 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
