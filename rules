@@ -9,20 +9,6 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 include /usr/share/dpkg/architecture.mk
 
-# As we seemingly cannot use dh_auto_build, this workaround helps to
-# do cross-builds.
-ifeq ($(origin CC),default)
-     CC = $(DEB_HOST_GNU_TYPE)-gcc
-endif
-
-# Support non-cross-builds on systems without gnu-triplet-binaries for
-# pkg-config.
-ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-     PKG_CONFIG=pkg-config
-else
-     PKG_CONFIG=$(DEB_HOST_GNU_TYPE)-pkg-config
-endif
-
 PREFIX = /usr
 # Upstream does not handle CPPFLAGS, so we add it to CFLAGS here.
 CFLAGS += $(CPPFLAGS)
@@ -92,30 +78,25 @@ endif
 override_dh_auto_build:
 
 override_dh_auto_install:
-	$(MAKE) install-i18n \
-		PKG_CONFIG=$(PKG_CONFIG) \
-		CC=$(CC) \
+	dh_auto_build -p dnsmasq-base --no-parallel -- install-i18n \
 		BUILDDIR=debian/auto-build/dnsmasq-base \
 		DESTDIR=$(CURDIR)/debian/dnsmasq-base \
 		PREFIX=$(PREFIX) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		COPTS="$(COPTS)"
-	$(MAKE) install-i18n \
-		PKG_CONFIG=$(PKG_CONFIG) \
-		CC=$(CC) \
+	dh_auto_build -p dnsmasq-base-lua --no-parallel -- install-i18n \
 		BUILDDIR=debian/auto-build/dnsmasq-base-lua \
 		DESTDIR=$(CURDIR)/debian/dnsmasq-base-lua \
 		PREFIX=$(PREFIX) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		COPTS="$(COPTS) -DHAVE_LUASCRIPT"
-	$(MAKE) -C contrib/lease-tools \
-		CC=$(CC)
+	dh_auto_build -p dnsmasq-utils -D contrib/lease-tools
 
 override_dh_auto_clean:
-	$(MAKE) clean \
+	dh_auto_clean -p dnsmasq-base -- \
 		BUILDDIR=debian/auto-build/dnsmasq-base
-	$(MAKE) clean \
+	dh_auto_clean -p dnsmasq-base-lua -- \
 		BUILDDIR=debian/auto-build/dnsmasq-base-lua
 	rm -rf debian/auto-build
-	$(MAKE) -C contrib/lease-tools clean
+	dh_auto_clean -p dnsmasq-utils -D contrib/lease-tools
 
 override_dh_install:
 	dh_install -p dnsmasq-utils --sourcedir=contrib/lease-tools
