@@ -19,7 +19,6 @@ INSTANCE="${2}"
 
 # Most configuration options in /etc/default/dnsmasq are deprecated
 # but still honoured.
-ENABLED=1
 if [ -r /etc/default/${NAME}${INSTANCE:+.${INSTANCE}} ]; then
     . /etc/default/${NAME}${INSTANCE:+.${INSTANCE}}
 fi
@@ -201,7 +200,6 @@ status()
 
 case "${1}" in
   start)
-    test "${ENABLED}" != "0" || exit 0
     log_daemon_msg "Starting ${DESC}" "${NAME}${INSTANCE:+.${INSTANCE}}"
     start
     case "${?}" in
@@ -222,17 +220,9 @@ case "${1}" in
     ;;
   stop)
     stop_resolvconf
-    if [ "${ENABLED}" != "0" ]; then
-        log_daemon_msg "Stopping ${DESC}" "${NAME}${INSTANCE:+.${INSTANCE}}"
-    fi
+    log_daemon_msg "Stopping ${DESC}" "${NAME}${INSTANCE:+.${INSTANCE}}"
     stop
     RETVAL="${?}"
-    if [ "${ENABLED}" = "0" ]; then
-        case "${RETVAL}" in
-          0) log_daemon_msg "Stopping ${DESC}" "${NAME}${INSTANCE:+.${INSTANCE}}"; log_end_msg 0 ;;
-        esac
-        exit 0
-    fi
     case "${RETVAL}" in
       0) log_end_msg 0 ; exit 0 ;;
       1) log_warning_msg "(not running)" ; exit 0 ;;
@@ -245,7 +235,6 @@ case "${1}" in
     exit ${RETVAL}
     ;;
   restart|force-reload)
-    test "${ENABLED}" != "0" || exit 1
     ${DAEMON} --test ${CONFIG_DIR:+ -7 ${CONFIG_DIR}} ${DNSMASQ_OPTS:+ ${DNSMASQ_OPTS}} >/dev/null 2>&1
     if [ ${?} -ne 0 ]; then
         NAME="configuration syntax check"
