@@ -1,0 +1,1 @@
+get-address+query-dns+lua.alt.d
