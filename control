@@ -32,7 +32,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server
 
 Package: dnsmasq-base
 Architecture: any
-Depends: adduser, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
@@ -45,7 +45,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server
 
 Package: dnsmasq-base-lua
 Architecture: any
-Depends: adduser, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
