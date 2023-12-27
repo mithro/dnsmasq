@@ -65,8 +65,11 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
     - d/dnsmasq.post{inst,rm}
   * Refactor d/copyright to comply with DEP 5 (Closes: #966505).
   * Remove trailing whitespace from various files under debian/.
+  * Bump Standards-Version to 4.6.2.
+  * Specify Rules-Requires-Root.
+  * Update http:// to https:// with Homepage, Vcs-Git and Vcs-Browser.
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Wed, 27 Dec 2023 23:26:18 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Wed, 27 Dec 2023 23:39:42 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
