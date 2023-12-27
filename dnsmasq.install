@@ -1,7 +1,6 @@
 #!/usr/bin/dh-exec
 debian/resolvconf => /etc/resolvconf/update.d/dnsmasq
 debian/resolvconf-package => /usr/lib/resolvconf/dpkg-event.d/dnsmasq
-debian/installed-marker => /usr/share/dnsmasq/installed-marker
 debian/init-system-common => /usr/share/dnsmasq/init-system-common
 debian/systemd-helper => /usr/share/dnsmasq/systemd-helper
 dnsmasq.conf.example => /etc/dnsmasq.conf
