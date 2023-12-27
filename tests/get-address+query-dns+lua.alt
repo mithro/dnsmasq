@@ -47,8 +47,8 @@ ip netns exec clientnet dig +short A dhcp3.autopkg.test >>dig.out 2>&1
 cat dig.out
 if [ `linecount dig.out` -ne `linecount dig.patterns` ] ; then
 	error_exit 'empty or unexpected output'
-fi	
-match_or_exit dig.out dig.patterns 
+fi
+match_or_exit dig.out dig.patterns
 
 #Done
 echo Looks good.

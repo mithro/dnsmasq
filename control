@@ -2,7 +2,7 @@ Source: dnsmasq
 Section: net
 Priority: optional
 Build-Depends: dh-exec, gettext, libnetfilter-conntrack-dev [linux-any],
-               libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev, 
+               libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev,
                nettle-dev (>=2.4-3), libbsd-dev [kfreebsd-any],
 	       liblua5.2-dev, dh-runit, debhelper-compat (= 13),
                pkg-config, libnftables-dev
@@ -22,12 +22,12 @@ Breaks: ${runit:Breaks}
 Conflicts: resolvconf (<<1.15), ${runit:Conflicts}
 Description: Small caching DNS proxy and DHCP/TFTP server
  Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP
- server. It is designed to provide DNS and optionally, DHCP, to a 
- small network. It can serve the names of local machines which are 
- not in the global DNS. The DHCP server integrates with the DNS 
+ server. It is designed to provide DNS and optionally, DHCP, to a
+ small network. It can serve the names of local machines which are
+ not in the global DNS. The DHCP server integrates with the DNS
  server and allows machines with DHCP-allocated addresses
  to appear in the DNS with names configured either in each host or
- in a central configuration file. Dnsmasq supports static and dynamic 
+ in a central configuration file. Dnsmasq supports static and dynamic
  DHCP leases and BOOTP/TFTP for network booting of diskless machines.
 
 Package: dnsmasq-base
@@ -56,7 +56,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server
  not the infrastructure required to run it as a system daemon. For
  that, install the dnsmasq package. This package is an alternative
  to dnsmasq-base which includes the LUA interpreter.
- 
+
 Package: dnsmasq-utils
 Architecture: linux-any
 Depends: ${misc:Depends}, ${shlibs:Depends}
