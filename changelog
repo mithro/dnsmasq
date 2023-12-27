@@ -24,7 +24,7 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
         /usr/share/init-system-common, extract code used with systemd only
         into /usr/share/systemd-helper. This fixes lintian warning
         systemd-service-file-wraps-init-script.
-        Drop workaroung for possibly non-existent file /lib/lsb/init-functions.
+        Drop workaround for possibly non-existent file /lib/lsb/init-functions.
     - d/dnsmasq.{post,pre}{inst,rm}
         Rely mostly on the script snippets created by the DH tools to get
         things done, implicitly fixes the lintian warnings
@@ -65,7 +65,7 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
     - d/dnsmasq.post{inst,rm}
   * Refactor d/copyright to comply with DEP 5 (Closes: #966505).
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Wed, 27 Dec 2023 22:42:02 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Wed, 27 Dec 2023 23:00:11 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
