@@ -1,49 +1,70 @@
 dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
 
   * Non-maintainer upload.
-  * Introduce autokpgtests per d/tests/* (Closes: #1034135)
-  * Switch to dpkg-source 3.0 (quilt) format (Closes: #1007041)
+  * Introduce autokpgtests per d/tests/* (Closes: #1034135).
+  * Switch to dpkg-source 3.0 (quilt) format (Closes: #1007041).
   * doc.html: Add patch to eliminate privacy breaches leaving the Donations
-    paragraph as untouched as possible
-  * Prepend dnsmasq. to default, init, preinst, postinst, prerm, postrm
+    paragraph as untouched as possible.
+  * Prepend dnsmasq. to default, init, preinst, postinst, prerm, postrm.
   * Refactor d/rules to use the DH sequencer and fix major lintian issues
-    (Closes: #844989, #1040923)
+    (Closes: #844989, #1040923).
     Modified files:
-    d/rules
+    - d/rules
         Complete rewrite making use of debhelper and its tools, fixes lintian
-        warning debian-rules-sets-dpkg-architecture-variable
-    d/control
+        warning debian-rules-sets-dpkg-architecture-variable.
+    - d/control
         Build-Depends, Pre-Depends, Depends added or changed as needed, lintian
-        error depends-on-obsolete-package fixed
-    d/dnsmasq.default
+        error depends-on-obsolete-package fixed.
+    - d/dnsmasq.default
         ENABLED removed and comment changed to fix lintian error
-        init.d-script-should-always-start-service
-    d/dnsmasq.{post,pre}{inst,rm}
+        init.d-script-should-always-start-service.
+    - d/dnsmasq.init
+        Remove handling of obsolete ENABLED flag.
+        Extract code used with System-V-style init and systemd into
+        /usr/share/init-system-common, extract code used with systemd only
+        into /usr/share/systemd-helper. This fixes lintian warning
+        systemd-service-file-wraps-init-script.
+        Drop workaroung for possibly non-existent file /lib/lsb/init-functions.
+    - d/dnsmasq.{post,pre}{inst,rm}
         Rely mostly on the script snippets created by the DH tools to get
-        things done, implicitly fixes the lintian warning
-        command-with-path-in-maintainer-script
-    d/resolvconf*
+        things done, implicitly fixes the lintian warnings
+        maintainer-script-should-not-use-dpkg-maintscript-helper and
+        command-with-path-in-maintainer-script.
+    - d/resolvconf*
         Change file mode bits to 0755, the installed files need it
     New files:
-    d/dnsmasq.{install,links}
-    d/dnsmasq-base.{dirs,docs,install}
-    d/dnsmasq-base-lua.{dirs,docs,install,links}
-    d/dnsmasq-utils.{install,manpages}
+    - d/dnsmasq.{install,links,maintscript}
+    - d/dnsmasq-base.{dirs,docs,install}
+    - d/dnsmasq-base-lua.{dirs,docs,install,links}
+    - d/dnsmasq-utils.{install,manpages}
         The DH tools use these to install what was scripted explicitly
         in the previous version of the d/rules file,
         lintian warning dbus-policy-in-etc fixed
+    - /usr/share/init-system-common
+    - /usr/share/systemd-helper
+        These files contain slightly modified code formerly part of in
+        d/dnsmasq.init.
     Deleted files:
-    d/*conffiles, d/lintian-override
-        These are not in use anymore
-  * Deal with a removed conffile and changed links
+    - d/*conffiles
+    - d/lintian-override
+    - /usr/share/installed-marker
+        These are not in use anymore.
+  * Deal with a removed conffile and changed links.
     Modified files:
-    d/dnsmasq-base.{postinst,postrm}
+    - d/dnsmasq-base.{postinst,postrm}
     New files:
-    d/dnsmasq-base.maintscript
-    d/dnsmasq-base-lua.maintscript
-  * Use dh_auto_build and dh_auto_clean, instead of calling make directly
+    - d/dnsmasq-base.maintscript
+    - d/dnsmasq-base-lua.maintscript
+  * Add watch file and upstream's signing key.
+    New files:
+    - d/watch
+    - d/u/signing-key.asc
+  * Remove dependency on package adduser.
+    Modified files:
+    - d/control
+    - d/dnsmasq.post{inst,rm}
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Mon, 27 Nov 2023 20:08:06 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Wed, 27 Dec 2023 20:00:01 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
