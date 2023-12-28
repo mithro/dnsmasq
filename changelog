@@ -6,6 +6,8 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
   * doc.html: Add patch to eliminate privacy breaches leaving the Donations
     paragraph as untouched as possible.
   * Prepend dnsmasq. to default, init, preinst, postinst, prerm, postrm.
+  * Rename d/systemd.service to d/dnsmasq.service.
+  * Rename d/systemd@.service to d/dnsmasq@.service.
   * Refactor d/rules to use the DH sequencer and fix major lintian issues
     (Closes: #844989, #1040923).
     Modified files:
@@ -21,10 +23,13 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
     - d/dnsmasq.init
         Remove handling of obsolete ENABLED flag.
         Extract code used with System-V-style init and systemd into
-        /usr/share/init-system-common, extract code used with systemd only
-        into /usr/share/systemd-helper. This fixes lintian warning
+        d/init-system-common, extract code used with systemd only
+        into d/systemd-helper. This fixes lintian warning
         systemd-service-file-wraps-init-script.
-        Drop workaround for possibly non-existent file /lib/lsb/init-functions.
+        Drop workaround for hypothetically non-existent file
+        /lib/lsb/init-functions, it has been around for more than a decade.
+    - d/dnsmasq.service, d/dnsmasq@.service
+        Adapt these files to make use of init-system-common and systemd-helper.
     - d/dnsmasq.{post,pre}{inst,rm}
         Rely mostly on the script snippets created by the DH tools to get
         things done, implicitly fixes the lintian warnings
@@ -40,14 +45,14 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
         The DH tools use these to install what was scripted explicitly
         in the previous version of the d/rules file,
         lintian warning dbus-policy-in-etc fixed
-    - /usr/share/init-system-common
-    - /usr/share/systemd-helper
+    - d/init-system-common
+    - d/systemd-helper
         These files contain slightly modified code formerly part of in
         d/dnsmasq.init.
     Deleted files:
     - d/*conffiles
     - d/lintian-override
-    - /usr/share/installed-marker
+    - d/installed-marker
         These are not in use anymore.
   * Deal with a removed conffile and changed links.
     Modified files:
