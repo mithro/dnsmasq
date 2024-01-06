@@ -21,7 +21,7 @@ Depends: netbase, dnsmasq-base,
 Suggests: resolvconf
 Breaks: ${runit:Breaks}
 Conflicts: resolvconf (<<1.15), ${runit:Conflicts}
-Description: Small caching DNS proxy and DHCP/TFTP server
+Description: Small caching DNS proxy and DHCP/TFTP server - system daemon
  Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP
  server. It is designed to provide DNS and optionally, DHCP, to a
  small network. It can serve the names of local machines which are
@@ -39,7 +39,7 @@ Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
 Provides: dnsmasq-base
 Conflicts: dnsmasq-base-lua
-Description: Small caching DNS proxy and DHCP/TFTP server
+Description: Small caching DNS proxy and DHCP/TFTP server - executable
  This package contains the dnsmasq executable and documentation, but
  not the infrastructure required to run it as a system daemon. For
  that, install the dnsmasq package.
@@ -52,7 +52,7 @@ Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
 Provides: dnsmasq-base
 Conflicts: dnsmasq-base
-Description: Small caching DNS proxy and DHCP/TFTP server
+Description: Small caching DNS proxy and DHCP/TFTP server - executable, Lua-enabled
  This package contains the dnsmasq executable and documentation, but
  not the infrastructure required to run it as a system daemon. For
  that, install the dnsmasq package. This package is an alternative
