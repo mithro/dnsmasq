@@ -56,7 +56,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable, Lua-enab
  This package contains the dnsmasq executable and documentation, but
  not the infrastructure required to run it as a system daemon. For
  that, install the dnsmasq package. This package is an alternative
- to dnsmasq-base which includes the LUA interpreter.
+ to dnsmasq-base which includes the Lua interpreter.
 
 Package: dnsmasq-utils
 Architecture: linux-any
