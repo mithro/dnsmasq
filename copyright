@@ -5,20 +5,19 @@ Source: https://thekelleys.org.uk/dnsmasq/
 
 Files: *
 Copyright: 2000-2021 Simon Kelley <simon@thekelleys.org.uk>
-License: GPL-2+
+License: GPL-2 or GPL-3
 
 Files: debian/*
 Copyright: 2004-2023 Simon Kelley <simon@thekelleys.org.uk>
            2012      Lars Bahner <bahner@debian.org>
            2023      Sven Geuer <debmaint@g-e-u-e-r.de>
-License: GPL-2+
+License: GPL-2 or GPL-3
 
-License: GPL-2+
+License: GPL-2
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
- License as published by the Free Software Foundation; either
- version 2 dated June, 1991, or (at your option) version 3
- dated 29 June, 2007.
+ License as published by the Free Software Foundation;
+ version 2 dated June, 1991.
  .
  This program is distributed in the hope that it will be
  useful, but WITHOUT ANY WARRANTY; without even the implied
@@ -27,12 +26,29 @@ License: GPL-2+
  details.
  .
  You should have received a copy of the GNU General Public
- License along with this package; if not, write to the Free
- Software Foundation, Inc., 51 Franklin St, Fifth Floor,
- Boston, MA  02110-1301 USA
+ License along with this program.  If not, see
+ <https://www.gnu.org/licenses/gpl-2.0>.
  .
  On Debian systems, the full text of the GNU General Public
- License version 2 and version 3 can be found in the files
- `/usr/share/common-licenses/GPL-2' and
- `/usr/share/common-licenses/GPL-3' respectively.
+ License can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
 
+License: GPL-3
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation;
+ version 3 dated 29 June, 2007.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this program.  If not, see
+ <https://www.gnu.org/licenses/gpl-3.0>.
+ .
+ On Debian systems, the full text of the GNU General Public
+ License can be found in the file
+ `/usr/share/common-licenses/GPL-3'.
