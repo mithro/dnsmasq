@@ -2,53 +2,16 @@
 
 set -e
 
-. debian/tests/helpers
+. debian/tests/functions
 
-cd debian/tests/`basename $0`.d
+stop_dnsmasq_bind_networking
+configure_and_start_networking
+configure_and_start_bind
+configure_and_start_dnsmasq systemd alt
 
-#Stop services and networking for configuration
-systemctl stop dnsmasq.service
-systemctl stop named.service
-systemctl stop networking.service
+get_address_on_veth1_and_check_the_result
 
-#Add interfaces needed for the test
-cat add-to.interfaces >> /etc/network/interfaces
-
-#Configure dnsmasq.alt
-cp dnsmasq.alt-autopkgtest.default /etc/default/dnsmasq.alt
-cp /etc/dnsmasq.conf /etc/dnsmasq.alt.conf
-mkdir /etc/dnsmasq.alt.d
-cp dnsmasq.alt-autopkgtest.conf /etc/dnsmasq.alt.d/
-
-#Configure bind
-cp db.autopkg.test /etc/bind/
-cat add-to.named.conf.local >>/etc/bind/named.conf.local
-cp named.conf.options /etc/bind/named.conf.options
-
-#Start networking and services
-systemctl start networking.service
-systemctl start named.service
-systemctl enable dnsmasq@alt.service
-systemctl start dnsmasq@alt.service
-
-#Get an address on veth1 and check the result
-echo ~~~ Get an address on veth1 and check the result...
-ip netns exec clientnet ifup veth1
-ip netns exec clientnet ip addr show dev veth1 >ip-addr.out 2>&1
-cat ip-addr.out
-match_or_exit ip-addr.out ip-addr.patterns
-
-#Query some test zone records and check the result
-echo ~~~ Query some test zone records and check the result...
-ip netns exec clientnet dig +short SOA autopkg.test >dig.out 2>&1
-ip netns exec clientnet dig +short NS autopkg.test >>dig.out 2>&1
-ip netns exec clientnet dig +short A ns.autopkg.test >>dig.out 2>&1
-ip netns exec clientnet dig +short A dhcp3.autopkg.test >>dig.out 2>&1
-cat dig.out
-if [ `linecount dig.out` -ne `linecount dig.patterns` ] ; then
-	error_exit 'empty or unexpected output'
-fi
-match_or_exit dig.out dig.patterns
+query_test_zone_records_and_check_the_result
 
 #Done
 echo Looks good.

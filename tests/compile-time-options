@@ -2,12 +2,6 @@
 
 set -e
 
-. debian/tests/helpers
+. debian/tests/functions
 
-cd debian/tests/`basename $0`.d
-
-journalctl -b -u dnsmasq
-echo ~~~ Check compile time options...
-journalctl -b -u dnsmasq -g '[a-z]+: ' --output cat >options.msg
-cat options.msg
-match_or_exit options.msg options.patterns
+check_compile_time_options
