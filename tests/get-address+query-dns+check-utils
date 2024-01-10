@@ -7,7 +7,7 @@ set -e
 stop_dnsmasq_bind_networking
 configure_and_start_networking
 configure_and_start_bind
-configure_and_start_dnsmasq systemd
+configure_and_start_dnsmasq
 
 get_address_on_veth1_and_check_the_result
 

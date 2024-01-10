@@ -45,34 +45,37 @@ configure_and_start_bind () {
 }
 
 configure_and_start_dnsmasq () {
-	case "$2" in
-		alt)
-			cp ${FUNCTIONS_DIR}/dnsmasq.alt-autopkgtest.default /etc/default/dnsmasq.alt
-			cp /etc/dnsmasq.conf /etc/dnsmasq.alt.conf
-			mkdir /etc/dnsmasq.alt.d
-			cp ${FUNCTIONS_DIR}/dnsmasq.alt-autopkgtest.conf /etc/dnsmasq.alt.d/
-			;;
-		'')
-			cp ${FUNCTIONS_DIR}/dnsmasq-autopkgtest.conf /etc/dnsmasq.d/
-			;;
-		*)
-			error_exit "configure_and_start_dnsmasq(): invalid 2nd argument '$2'"
-	esac
-	case "$1" in
-		systemd)
-			if [ "$2" = 'alt' ]; then
-				systemctl enable dnsmasq@alt.service
-				systemctl start dnsmasq@alt.service
-			else
-				systemctl start dnsmasq.service
-			fi
-			;;
-		sysv)
-			SYSTEMCTL_SKIP_REDIRECT=1 /etc/init.d/dnsmasq start "$2"
-			;;
-		*)
-			error_exit "configure_and_start_dnsmasq(): invalid 1st argument '$1'"
-	esac
+	alt_mode=0
+	sysv_mode=0
+	service='dnsmasq.service'
+	sysv_param2=''
+	conf_dir='/etc/dnsmasq.d'
+
+	while [ -n "$1" ]; do
+		case "$1" in
+			alt|sysv) eval ${1}_mode=1 ;;
+			*) error_exit "configure_and_start_dnsmasq(): invalid flag '$1'"
+		esac
+		shift
+	done
+
+	if [ ${alt_mode} -eq 1 ]; then
+		cp ${FUNCTIONS_DIR}/dnsmasq.alt-autopkgtest.default /etc/default/dnsmasq.alt
+		cp /etc/dnsmasq.conf /etc/dnsmasq.alt.conf
+		mkdir /etc/dnsmasq.alt.d
+		service='dnsmasq@alt.service'
+		sysv_param2='alt'
+		conf_dir='/etc/dnsmasq.alt.d/'
+	fi
+
+	cp ${FUNCTIONS_DIR}/dnsmasq-autopkgtest.conf "${conf_dir}"
+
+	if [ ${sysv_mode} -eq 1 ]; then
+		SYSTEMCTL_SKIP_REDIRECT=1 /etc/init.d/dnsmasq start "${sysv_param2}"
+	else
+		systemctl enable "${service}"
+		systemctl start "${service}"
+	fi
 }
 
 check_compile_time_options () {
