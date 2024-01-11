@@ -20,7 +20,7 @@ Restrictions: needs-root,
               allow-stderr,
               isolation-container,
 
-Tests: get-address+query-dns+lua.alt
+Tests: get-address+query-dns+lua+alt
 Depends: bind9,
          bind9-dnsutils,
          dnsmasq,
@@ -29,7 +29,7 @@ Restrictions: needs-root,
               allow-stderr,
               isolation-container,
 
-Tests: get-address+query-dns.sysv.alt
+Tests: get-address+query-dns+sysv+alt
 Depends: bind9,
          bind9-dnsutils,
          dnsmasq,
