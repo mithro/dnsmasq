@@ -77,7 +77,7 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
   * Fix lintian issue duplicate-short-description.
   * Fix lintian issue capitalization-error-in-description.
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Sat, 06 Jan 2024 19:05:03 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Thu, 11 Jan 2024 21:02:09 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
