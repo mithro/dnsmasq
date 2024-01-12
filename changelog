@@ -76,8 +76,15 @@ dnsmasq (2.89-1.1) UNRELEASED; urgency=medium
   * Introduce d/u/metadata.
   * Fix lintian issue duplicate-short-description.
   * Fix lintian issue capitalization-error-in-description.
+  * Bump Lua version to 5.4 (Closes: #1050750).
+    Modified files:
+    - d/control
+    - d/t/functions.d/log.patterns
+    - d/p/series
+   New files:
+    - d/p/bump-lua-version.patch
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Thu, 11 Jan 2024 21:02:09 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Fri, 12 Jan 2024 20:31:44 +0100
 
 dnsmasq (2.89-1) unstable; urgency=low
 
