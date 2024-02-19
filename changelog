@@ -1,3 +1,11 @@
+dnsmasq (2.90-2) unstable; urgency=medium
+
+  [ Sven Geuer ]
+  * Relax limits imposed by d/t/functions.d/ip-addr.patterns to allow for
+    successful tests on ci.debian.net.
+
+ -- Simon Kelley <simon@thekelleys.org.uk>  Wed, 14 Feb 2024 11:33:14 +0000
+
 dnsmasq (2.90-1) unstable; urgency=medium
 
   [ Simon Kelley ]
@@ -93,7 +101,7 @@ dnsmasq (2.89-1) unstable; urgency=low
 
    * New upstream.
 
- -- Simon Kelley <simon@thekelleys.org.uk>  Fri, 13 Jan 2023 21:57:01 +0000
+ -- Simon Kelley <simon@thekelleys.org.uk>  Tue, 13 Jan 2023 21:57:01 +0000
 
 dnsmasq (2.88-1) unstable; urgency=low
 
