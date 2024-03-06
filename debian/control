@@ -8,8 +8,8 @@ Build-Depends: dh-exec, gettext, libnetfilter-conntrack-dev [linux-any],
                pkg-config, libnftables-dev
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
 Homepage: https://www.thekelleys.org.uk/dnsmasq/doc.html
-Vcs-Git: https://thekelleys.org.uk/git/dnsmasq.git
-Vcs-Browser: https://thekelleys.org.uk/gitweb/?p=dnsmasq.git
+Vcs-Git: https://thekelleys.org.uk/git/dnsmasq-debian.git
+Vcs-Browser: https://thekelleys.org.uk/gitweb/?p=dnsmasq-debian.git
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
 
