@@ -7,6 +7,7 @@ Build-Depends: dh-exec, gettext, libnetfilter-conntrack-dev [linux-any],
 	       liblua5.4-dev, dh-runit, debhelper-compat (= 13),
                pkg-config, libnftables-dev
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
+Uploaders: Sven Geuer <debmaint@g-e-u-e-r.de>
 Homepage: https://www.thekelleys.org.uk/dnsmasq/doc.html
 Vcs-Git: https://thekelleys.org.uk/git/dnsmasq-debian.git
 Vcs-Browser: https://thekelleys.org.uk/gitweb/?p=dnsmasq-debian.git
