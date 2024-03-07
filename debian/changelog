@@ -1,3 +1,12 @@
+dnsmasq (2.90-3) UNRELEASED; urgency=medium
+
+  * Update d/control:
+    - Add passwd to Depends of dnsmasq-base(-lua) (closes: #1064518).
+    - Update the Vcs-* fields (closes: #1065347).
+    - Add myself as uploader.
+
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Thu, 07 Mar 2024 21:38:33 +0100
+
 dnsmasq (2.90-2) unstable; urgency=medium
 
   [ Sven Geuer ]
