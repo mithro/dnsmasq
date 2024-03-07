@@ -5,7 +5,7 @@ Build-Depends: dh-exec, gettext, libnetfilter-conntrack-dev [linux-any],
                libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev,
                nettle-dev (>=2.4-3), libbsd-dev [kfreebsd-any],
 	       liblua5.4-dev, dh-runit, debhelper-compat (= 13),
-               pkg-config, libnftables-dev
+               pkgconf, libnftables-dev
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
 Uploaders: Sven Geuer <debmaint@g-e-u-e-r.de>
 Homepage: https://www.thekelleys.org.uk/dnsmasq/doc.html
