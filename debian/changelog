@@ -1,4 +1,4 @@
-dnsmasq (2.90-3) UNRELEASED; urgency=medium
+dnsmasq (2.90-3) unstable; urgency=medium
 
   * Update d/control:
     - Add passwd to Depends of dnsmasq-base(-lua) (closes: #1064518).
@@ -9,7 +9,7 @@ dnsmasq (2.90-3) UNRELEASED; urgency=medium
     - Fix lintian issue missing-field-in-dep5-copyright.
   * Add missing CVE number to the 2.90-1 change log.
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Thu, 07 Mar 2024 23:11:48 +0100
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Sat, 09 Mar 2024 20:18:53 +0100
 
 dnsmasq (2.90-2) unstable; urgency=medium
 
