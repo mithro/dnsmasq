@@ -7,6 +7,7 @@ dnsmasq (2.90-3) UNRELEASED; urgency=medium
     - Add myself as uploader.
   * Update d/copyright:
     - Fix lintian issue missing-field-in-dep5-copyright.
+  * Add missing CVE number to the 2.90-1 change log.
 
  -- Sven Geuer <debmaint@g-e-u-e-r.de>  Thu, 07 Mar 2024 23:11:48 +0100
 
@@ -22,6 +23,7 @@ dnsmasq (2.90-1) unstable; urgency=medium
 
   [ Simon Kelley ]
   * New upstream. (closes: #1033165)
+    CVE-2023-28450
   * Move hard-coding of Lua version from the upstream Makefile
     to  d/rules.
   * Security fixes for Keytrap - DNSSEC validation CPU exhaustion.
