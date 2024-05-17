@@ -2,7 +2,10 @@
 set -e
 
 if [ purge = "$1" ]; then
-  userdel dnsmasq
+  # Handle the rare case "userdel" not being available, see bug #1071142.
+  if [ -x /sbin/userdel ]; then
+    userdel dnsmasq
+  fi
   rm -rf /run/dnsmasq
 fi
 
