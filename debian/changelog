@@ -4,7 +4,7 @@ dnsmasq (2.90-4) unstable; urgency=medium
     - Handle the rare case "userdel" not being available (closes: #1071142).
   * Bump Standards-Version to 4.7.0.
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Fri, 17 May 2024 16:19:25 +0200
+ -- Sven Geuer <debmaint@g-e-u-e-r.de>  Fri, 17 May 2024 17:33:51 +0200
 
 dnsmasq (2.90-3) unstable; urgency=medium
 
