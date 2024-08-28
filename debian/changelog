@@ -1,10 +1,22 @@
+dnsmasq (2.90-4~deb12u1) bookworm; urgency=medium
+
+  * Non-maintainer upload.
+  * Backport to bookworm, fixing:
+    - CVE-2023-28450 - Reduce default maximum EDNS.0 UDP packet size due to DNS
+      Flag Day 2020
+    - CVE-2023-50387, CVE-2023-50868 - DNSSEC validation CPU exhaustion
+      ("Keytrap")
+
+ -- Lee Garrett <debian@rocketjump.eu>  Wed, 28 Aug 2024 18:52:09 +0200
+
 dnsmasq (2.90-4) unstable; urgency=medium
 
+  [ Sven Geuer ]
   * d/dnsmasq-base.postrm:
     - Handle the rare case "userdel" not being available (closes: #1071142).
   * Bump Standards-Version to 4.7.0.
 
- -- Sven Geuer <debmaint@g-e-u-e-r.de>  Fri, 17 May 2024 17:33:51 +0200
+ -- Lee Garrett <debian@rocketjump.eu>  Wed, 28 Aug 2024 18:52:07 +0200
 
 dnsmasq (2.90-3) unstable; urgency=medium
 
