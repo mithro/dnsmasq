@@ -16,6 +16,7 @@ Rules-Requires-Root: no
 
 Package: dnsmasq
 Architecture: all
+Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
 Depends: netbase, dnsmasq-base,
          ${misc:Depends}
@@ -34,6 +35,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - system daemon
 
 Package: dnsmasq-base
 Architecture: any
+Multi-Arch: foreign
 Depends: passwd, ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
@@ -47,6 +49,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable
 
 Package: dnsmasq-base-lua
 Architecture: any
+Multi-Arch: foreign
 Depends: passwd, ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
@@ -61,6 +64,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable, Lua-enab
 
 Package: dnsmasq-utils
 Architecture: linux-any
+Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Conflicts: dnsmasq (<<2.40)
 Description: Utilities for manipulating DHCP leases
