@@ -102,8 +102,7 @@ override_dh_install:
 	dh_install -p dnsmasq-utils --sourcedir=contrib/lease-tools
 	dh_install --remaining-packages
 
-# If 'nodoc' is absent from DEB_BUILD_OPTIONS, Correct name or location of
-# some doc files.
+# If 'nodoc' is absent from DEB_BUILD_OPTIONS, correct name of some doc files.
 # We would prefer do this via dh-exec if it would support dh_installdocs.
 ifeq (,$(findstring nodoc,$(DEB_BUILD_OPTIONS)))
 execute_after_dh_installdocs:
@@ -111,8 +110,6 @@ execute_after_dh_installdocs:
 		cd $$d; \
 		mv readme README.Debian; \
 		mv CHANGELOG.archive changelog.archive; \
-		mkdir examples; \
-		mv dnsmasq.conf.example examples/; \
 	done
 endif
 
