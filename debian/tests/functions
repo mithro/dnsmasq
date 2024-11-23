@@ -149,3 +149,8 @@ check_lua_log () {
 		error_exit "${log_file} is empty"
 	fi
 }
+
+check_dnsmasq_status () {
+	echo ~~ Check whether dnsmasq has been started up successfully
+	systemctl status dnsmasq.service
+}

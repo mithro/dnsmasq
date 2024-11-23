@@ -37,3 +37,11 @@ Depends: bind9,
 Restrictions: needs-root,
               allow-stderr,
               isolation-container,
+
+Tests: verify-fix-to-bug-871958
+Depends: dnsmasq,
+         postfix,
+         resolvconf,
+Restrictions: needs-root,
+              isolation-container,
+
