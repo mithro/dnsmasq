@@ -1,3 +1,32 @@
+dnsmasq (2.90-5) unstable; urgency=medium
+
+  * d/control + d/copyright:
+    - Update my email address to the d.o one.
+  * d/control:
+    - Mark all packages as Multi-Arch: foreign (closes: #934477). Thanks to
+      "Yuriy M. Kaminskiy" <yumkam+debian@gmail.com> for the patch.
+  * d/dnsmasq.service + d/dnsmasq@.service:
+    - Require network-online.target instead of network.target (closes: #774970,
+      lp: #1531184). Thanks to David Britton <david.britton@canonical.com> for
+      the patch.
+    - Add Documentation key.
+  * d/init-system-common:
+    - Run resolvconf asynchronously (closes: #871958, lp: #1778073). Thanks to
+      Ciaby, https://launchpad.net/~ciaby, for tracking down what caused a
+      deadlock between dnsmasq, resolvconf and postfix.
+  * d/tests/*:
+    - Add test to verify the fix to bug #871958 still works.
+  * d/p/*:
+    - Add patch to remove trailing white space from dnsmasq.conf.example
+      (closes: #1022706).
+  * d/rules:
+    - Apply dh_installexamples instead of explicit code to package
+      dnsmasq.conf.example.
+  * d/dnsmasq.init:
+    - Fix lintian issue init.d-script-missing-lsb-short-description.
+
+ -- Sven Geuer <sge@debian.org>  Sat, 23 Nov 2024 18:50:11 +0100
+
 dnsmasq (2.90-4) unstable; urgency=medium
 
   * d/dnsmasq-base.postrm:
