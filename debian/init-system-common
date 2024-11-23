@@ -88,7 +88,9 @@ start_resolvconf()
     fi
 
     if [ -x /sbin/resolvconf ] ; then
-        echo "nameserver 127.0.0.1" | /sbin/resolvconf -a lo.${NAME}${INSTANCE:+.${INSTANCE}}
+        # Run resolvconf asynchronously to avoid deadlocks, see
+        # https://bugs.debian.org/871958 for mode details.
+        echo "nameserver 127.0.0.1" | /sbin/resolvconf -a lo.${NAME}${INSTANCE:+.${INSTANCE}} &
     fi
     return 0
 }
@@ -96,7 +98,9 @@ start_resolvconf()
 stop_resolvconf()
 {
     if [ -x /sbin/resolvconf ] ; then
-        /sbin/resolvconf -d lo.${NAME}${INSTANCE:+.${INSTANCE}}
+        # Run resolvconf asynchronously to avoid deadlocks, see
+        # https://bugs.debian.org/871958 for mode details.
+        /sbin/resolvconf -d lo.${NAME}${INSTANCE:+.${INSTANCE}} &
     fi
     return 0
 }
