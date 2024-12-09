@@ -32,8 +32,12 @@ stop_dnsmasq_bind_networking () {
 }
 
 configure_and_start_networking () {
-	#Add interfaces needed for the test
+	# Add interfaces needed for the test
 	cat ${FUNCTIONS_DIR}/add-to.interfaces >> /etc/network/interfaces
+	# Extend dhcpcd configuration, Ubuntu runs dhcpcd in place of
+	# isc-dhcp-client and Debian might also use it in future.
+	# See bug #1089585 for details.
+	cat ${FUNCTIONS_DIR}/add-to.dhcpcd.conf >> /etc/dhcpcd.conf
 	systemctl start networking.service
 }
 
