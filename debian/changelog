@@ -1,3 +1,17 @@
+dnsmasq (2.90-6) unstable; urgency=medium
+
+  * Enhance autopkgtests.
+    - d/t/functions:
+      - Deal with dhcpcd in addition to isc-dhcp-client (closes: #1089585).
+    - d/t/*:
+      - Make sure ifupdown is installed with tests relying on it and remove
+        systemd-resolved possibly installed by default (closes: #1089586).
+      - Drop trailing empty lines.
+    - Thanks to Lukas Märdian <slyon@ubuntu.com> for bringing up the issues
+      and for providing patches.
+
+ -- Sven Geuer <sge@debian.org>  Tue, 10 Dec 2024 20:44:54 +0100
+
 dnsmasq (2.90-5) unstable; urgency=medium
 
   * d/control + d/copyright:
