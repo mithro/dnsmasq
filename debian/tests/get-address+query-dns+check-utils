@@ -4,6 +4,7 @@ set -e
 
 . debian/tests/functions
 
+possibly_purge_resolved
 stop_dnsmasq_bind_networking
 configure_and_start_networking
 configure_and_start_bind

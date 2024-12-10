@@ -25,6 +25,18 @@ error_exit () {
 	exit 1
 }
 
+possibly_purge_resolved () {
+	# Uninstall systemd-resolved, to free port 53/UDP and restart dnsmasq
+	if [ "$(systemctl is-active systemd-resolved.service)" = 'active' ]; then
+		echo "Purging systemd-resolved..."
+		apt-get -yq purge systemd-resolved
+		if [ "$1" = 'and_restart_dnsmasq' ]; then
+			echo "Restarting dnsmasq.service..."
+			systemctl restart dnsmasq.service
+		fi
+	fi
+}
+
 stop_dnsmasq_bind_networking () {
 	systemctl stop dnsmasq.service
 	systemctl stop named.service
@@ -93,7 +105,7 @@ configure_and_start_dnsmasq () {
 check_compile_time_options () {
 	journalctl -b -u dnsmasq
 	echo ~~~ Check compile time options...
-	journalctl -b -u dnsmasq -g '[a-z]+: ' --output cat >options.msg
+	journalctl -b -u dnsmasq -g 'options: ' --output cat >options.msg
 	cat options.msg
 	match_or_exit options.msg ${FUNCTIONS_DIR}/options${1}.patterns
 }
