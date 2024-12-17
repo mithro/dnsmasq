@@ -1,0 +1,43 @@
+Description: Fix crash when reloading DHCP config on SIGHUP.
+ Confusion in the code to free old DHCP configuration when it's
+ being reloaded causes invalid pointers to be followed and a crash.
+ .
+ https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2024q4/017764.html
+ has a more complete explanation of the problem.
+Author: Simon Kelley <simon@thekelleys.org.uk>
+Date: Fri, 4 Oct 2024 16:59:14 +0100
+Origin: upstream, https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=commitdiff;h=f006be7842104a9f86fbf419326b7aad08ade61d
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/jammy/+source/dnsmasq/+bug/2026757
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1090352
+Forwarded: not-needed
+Last-Update: 2024-12-17
+---
+ src/option.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+--- a/src/option.c
++++ b/src/option.c
+@@ -1336,7 +1336,7 @@
+ 
+ /* Parse one or more tag:s before parameters.
+  * Moves arg to the end of tags. */
+-static struct dhcp_netid * dhcp_tags(char **arg)
++static struct dhcp_netid *dhcp_tags(char **arg)
+ {
+   struct dhcp_netid *id = NULL;
+ 
+@@ -1360,7 +1360,13 @@
+     {
+       struct dhcp_netid_list *tmplist = netid;
+       netid = netid->next;
+-      dhcp_netid_free(tmplist->list);
++      /* Note: don't use dhcp_netid_free() here, since that 
++	 frees a list linked on netid->next. Where a netid_list
++	 is used that's because the the ->next pointers in the
++	 netids are being used to temporarily construct 
++	 a list of valid tags. */
++      free(tmplist->list->net);
++      free(tmplist->list);
+       free(tmplist);
+     }
+ }
