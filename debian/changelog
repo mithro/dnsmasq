@@ -1,3 +1,14 @@
+dnsmasq (2.91~test3-1) UNRELEASED; urgency=medium
+
+  * New upstream version 2.91~test3
+  * d/watch: Consider only tar.gz archives.
+  * d/p/*: Drop fix-crash-when-reloading-DHCP-config-on-SIGHUP.patch,
+    applied upstream.
+  * d/t/functions.d/options*.patterns: Adapt pattern files to the new
+    upstream version.
+
+ -- Sven Geuer <sge@debian.org>  Fri, 27 Dec 2024 18:45:01 +0100
+
 dnsmasq (2.90-7) unstable; urgency=medium
 
   * d/p/*:
