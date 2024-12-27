@@ -1,3 +1,2 @@
 eliminate-privacy-breaches.patch
 trailing-white-space.patch
-fix-crash-when-reloading-DHCP-config-on-SIGHUP.patch
