@@ -78,12 +78,12 @@ endif
 override_dh_auto_build:
 
 override_dh_auto_install:
-	dh_auto_build -p dnsmasq-base --no-parallel -- install-i18n \
+	dh_auto_build -p dnsmasq-base -- install-i18n \
 		BUILDDIR=debian/auto-build/dnsmasq-base \
 		DESTDIR=$(CURDIR)/debian/dnsmasq-base \
 		PREFIX=$(PREFIX) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		COPTS="$(COPTS)"
-	dh_auto_build -p dnsmasq-base-lua --no-parallel -- install-i18n \
+	dh_auto_build -p dnsmasq-base-lua -- install-i18n \
 		BUILDDIR=debian/auto-build/dnsmasq-base-lua \
 		DESTDIR=$(CURDIR)/debian/dnsmasq-base-lua \
 		PREFIX=$(PREFIX) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
