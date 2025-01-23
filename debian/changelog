@@ -1,3 +1,9 @@
+dnsmasq (2.91~test9-1) unstable; urgency=medium
+
+  * New upstream pre-release 2.91~test9
+
+ -- Sven Geuer <sge@debian.org>  Thu, 23 Jan 2025 12:37:39 +0100
+
 dnsmasq (2.91~test6-1) unstable; urgency=medium
 
   * New upstream pre-release 2.91~test6
