@@ -1,3 +1,10 @@
+dnsmasq (2.91-1) unstable; urgency=medium
+
+  * New upstream version 2.91
+  * d/control: Bump Standards-Version to 4.7.2.
+
+ -- Sven Geuer <sge@debian.org>  Thu, 20 Mar 2025 18:22:04 +0100
+
 dnsmasq (2.91~test9-1) unstable; urgency=medium
 
   * New upstream pre-release 2.91~test9
