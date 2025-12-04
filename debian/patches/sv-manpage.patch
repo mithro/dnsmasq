@@ -1,0 +1,45 @@
+Description: Fix some issues, some causing lintian warnings
+ Pointless quotation marks which get displayed in the rendered manual page.
+ groff-message troff:<standard input>:868: warning:
+  macro 'Om' not defined
+  [usr/share/man/sv/man8/dnsmasq.8.gz:1]
+ groff-message troff:<standard input>:2846: warning:
+  macro 'SH-FILER' not defined (possibly missing space after 'SH')
+  [usr/share/man/sv/man8/dnsmasq.8.gz:2]
+Author: Sven Geuer <sge@debian.org>
+Forwarded: no
+Reviewed-by: <name and email of a reviewer, optional>
+Last-Update: 2025-12-04
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/man/sv/dnsmasq.8
++++ b/man/sv/dnsmasq.8
+@@ -4,7 +4,7 @@
+ .SH SYNOPSIS
+ .B dnsmasq
+ .I [OPTION]...
+-.SH ”BESKRIVNING”
++.SH BESKRIVNING
+ .BR dnsmasq
+ är en lättviktig DNS-, TFTP-, PXE-, routerannonserings- och DHCP-server. Den är avsedd att tillhandahålla 
+ kopplade DNS- och DHCP-tjänster till ett LAN.
+@@ -864,8 +864,8 @@
+ Dnsmasq kan kryptera bokstäverna i DNS-frågor som skickas uppströms som en säkerhetsfunktion.
+ Denna teknik kan interagera dåligt med sällsynta trasiga DNS-servrar som inte bevarar bokstäverna
+ i frågan i sitt svar. Första gången ett svar returneras
+-som matchar frågan i alla avseenden utom bokstäverna, loggas en varning
+-. Om detta sammanfaller med att DNS inte fungerar, är det
++som matchar frågan i alla avseenden utom bokstäverna, loggas en varning.
++Om detta sammanfaller med att DNS inte fungerar, är det
+ nödvändigt att inaktivera funktionen. I version 2.91 är 0x20-kodning
+ inaktiverad som standard och måste aktiveras med --do-0x20-encode. Standardinställningen
+ kan komma att ändras i framtiden, så för att vara säker på dess status efter en uppgradering, ställ in --do-0x20-encode
+@@ -2843,7 +2843,7 @@
+ anta att det är systemets standard.
+  
+ 
+-.SH-FILER
++.SH FILER
+ .IR /etc/dnsmasq.conf 
+ 
+ .IR /usr/local/etc/dnsmasq.conf
