@@ -3,7 +3,7 @@ Description: Remove or replace privacy breaching logos and forms
  privacy-breach-donation.
 Forwarded: not-needed
 Author: Sven Geuer <debmaint@g-e-u-e-r.de>
-Last-Update: 2023-11-18
+Last-Update: 2025-12-04
 
 --- a/doc.html
 +++ b/doc.html
@@ -22,7 +22,7 @@ Last-Update: 2023-11-18
  </table>
  Dnsmasq provides network infrastructure for small networks: DNS, DHCP, router advertisement and network boot. It is designed to be 
  lightweight and have a small footprint, suitable for resource constrained routers and firewalls. It has also been widely used 
-@@ -88,14 +85,6 @@
+@@ -88,12 +85,6 @@
  Dnsmasq is mainly written and maintained by Simon Kelley. For most of its life, dnsmasq has been a spare-time project. 
  These days I'm working on it as my main activity. 
  I don't have an employer or anyone who pays me regularly to work on dnsmasq. If you'd like to make 
@@ -33,8 +33,6 @@ Last-Update: 2023-11-18
 -<input type="image" src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online.">
 -<img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
 -</form>
--
--
 +a contribution towards my expenses, please use the donation button at <A HREF="https://www.thekelleys.org.uk/dnsmasq/doc.html">the project's home page</A>.
  </BODY>
- 
+ </HTML>
