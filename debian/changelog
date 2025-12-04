@@ -1,3 +1,15 @@
+dnsmasq (2.92~rc1-1) unstable; urgency=medium
+
+  * New upstream version 2.92~rc1
+  * d/p/*:
+    - Adapt eliminate-privacy-breaches.patch to new upstream version.
+    - Add en-manpage.patch fixing typos reported by lintian.
+    - Add sv-manpage.patch fixing lintian warning and a typo.
+  * d/watch: Update watch file to version 5 format.
+  * d/control: Drop 'Rules-Requires-Root: no', it's the default now.
+
+ -- Sven Geuer <sge@debian.org>  Thu, 04 Dec 2025 19:02:47 +0100
+
 dnsmasq (2.91-1) unstable; urgency=medium
 
   * New upstream version 2.91
