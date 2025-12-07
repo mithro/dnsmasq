@@ -1,3 +1,13 @@
+dnsmasq (2.92~rc3-1) unstable; urgency=medium
+
+  * New upstream version 2.92~rc3
+  * d/p/*:
+    - Adapt patches to new upstream release.
+    - Add work-around-bug-1122015.patch fixing temporary problem with
+      systemd integration test.
+
+ -- Sven Geuer <sge@debian.org>  Sun, 07 Dec 2025 20:12:47 +0100
+
 dnsmasq (2.92~rc1-1) unstable; urgency=medium
 
   * New upstream version 2.92~rc1
