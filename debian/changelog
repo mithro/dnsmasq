@@ -1,3 +1,12 @@
+dnsmasq (2.92-1~exp1) experimental; urgency=medium
+
+  * New upstream version 2.92
+  * d/p/*: Drop work-around-bug-1122015.patch, the bug has been fixed.
+  * d/control: Bump Standards-Version to 4.7.3.
+  * d/copyright: Bump upstream and packaging copyright years.
+
+ -- Sven Geuer <sge@debian.org>  Fri, 16 Jan 2026 20:07:33 +0100
+
 dnsmasq (2.92~rc3-1) unstable; urgency=medium
 
   * New upstream version 2.92~rc3
