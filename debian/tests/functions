@@ -148,6 +148,7 @@ check_utils () {
 	if ! dhcp_release veth0 $client_ip_address 1-$client_mac_address; then
 		error_exit "'dhcp_release veth0 $client_ip_address 1-$client_mac_address' failed with return code $?"
 	fi
+	sleep 1
 	if [ -n "`cat $leases_file`" ]; then
 		cat $leases_file
 		error_exit "$leases_file is not empty"
