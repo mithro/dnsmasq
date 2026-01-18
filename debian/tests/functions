@@ -146,7 +146,7 @@ check_utils () {
 	echo ~~~ Test dhcp_release...
 	cat $leases_file
 	if ! dhcp_release veth0 $client_ip_address 1-$client_mac_address; then
-		error_exit "'dhcp_release veth0 $client_ip_address 1-$client_mac_address' failed with return code $?0"
+		error_exit "'dhcp_release veth0 $client_ip_address 1-$client_mac_address' failed with return code $?"
 	fi
 	if [ -n "`cat $leases_file`" ]; then
 		cat $leases_file
