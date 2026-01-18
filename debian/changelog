@@ -1,3 +1,13 @@
+dnsmasq (2.92-1) unstable; urgency=medium
+
+  * d/t/functions:
+    - Fix a typo.
+    - In function check_utils, wait 1s before checking for cleared lease file.
+      This measure should avoid occasional test failures.
+  * Upload to unstable.
+
+ -- Sven Geuer <sge@debian.org>  Sun, 18 Jan 2026 17:01:16 +0100
+
 dnsmasq (2.92-1~exp1) experimental; urgency=medium
 
   * New upstream version 2.92
