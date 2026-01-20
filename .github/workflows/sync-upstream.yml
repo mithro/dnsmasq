@@ -33,9 +33,10 @@ jobs:
       - name: Sync all upstream branches to origin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          # Get all upstream branches (excluding github-actions which is ours)
-          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|.*upstream/||' | grep -v '^github-actions$'); do
+          # Get all upstream branches (excluding github-actions and $REPO_OWNER/* which are ours)
+          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|.*upstream/||' | grep -v '^github-actions$' | grep -v "^${REPO_OWNER}/"); do
             echo "Syncing branch: $branch"
 
             # Create or update local branch from upstream
