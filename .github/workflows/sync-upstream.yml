@@ -1,0 +1,57 @@
+name: Sync with Upstream dnsmasq
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout github-actions branch
+        uses: actions/checkout@v4
+        with:
+          ref: github-actions
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream git://thekelleys.org.uk/dnsmasq.git || true
+
+      - name: Fetch all branches and tags from upstream
+        run: |
+          git fetch upstream --tags --prune '+refs/heads/*:refs/remotes/upstream/*'
+
+      - name: Sync all upstream branches to origin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all upstream branches
+          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|upstream/||'); do
+            echo "Syncing branch: $branch"
+
+            # Create or update local branch from upstream
+            git checkout -B "$branch" "upstream/$branch"
+
+            # Push to origin (force to handle rebases upstream)
+            git push origin "$branch" --force
+          done
+
+      - name: Sync all tags to origin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Push all tags to origin
+          git push origin --tags --force
+
+      - name: Return to github-actions branch
+        run: |
+          git checkout github-actions
