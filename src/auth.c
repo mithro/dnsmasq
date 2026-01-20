@@ -911,5 +911,431 @@ size_t answer_auth(struct dns_header *header, char *limit, size_t qlen, time_t n
   
   return ansp - (unsigned char *)header;
 }
-  
+
+/* Streaming AXFR - sends zone transfer as multiple DNS messages */
+#define AXFR_BUFFER_SIZE 65536
+#define AXFR_FLUSH_THRESHOLD 60000  /* Flush when we approach this size */
+
+/* Helper to send a single AXFR message */
+static int axfr_send_message(int fd, unsigned char *packet, size_t msglen)
+{
+  u16 *length = (u16 *)packet;
+  *length = htons(msglen);
+  return read_write(fd, packet, msglen + sizeof(u16), RW_WRITE);
+}
+
+/* Helper to add SOA record for AXFR - nameoffset must be > 0 for compression */
+static size_t axfr_add_soa(struct dns_header *header, char *limit, unsigned char **ansp,
+                           int nameoffset)
+{
+  int trunc = 0;
+  /* When nameoffset > 0, owner name uses compression pointer (no vararg consumed).
+     The format "ddlllll" varargs are: MNAME, RNAME, serial, refresh, retry, expire, min */
+  if (add_resource_record(header, limit, &trunc, nameoffset, ansp,
+                          daemon->auth_ttl, NULL, T_SOA, C_IN, "ddlllll",
+                          daemon->authserver, daemon->hostmaster,
+                          daemon->soa_sn, daemon->soa_refresh,
+                          daemon->soa_retry, daemon->soa_expiry,
+                          daemon->auth_ttl))
+    return 1;
+  return 0;
+}
+
+/* Initialize a new AXFR message */
+static unsigned char *axfr_init_message(struct dns_header *header, unsigned short id, char *qname)
+{
+  unsigned char *p;
+
+  memset(header, 0, sizeof(struct dns_header));
+  header->id = id;
+  header->hb3 = HB3_QR | HB3_AA;  /* Response, Authoritative */
+  header->hb4 = 0;
+  header->qdcount = htons(1);
+  header->ancount = htons(0);
+  header->nscount = htons(0);
+  header->arcount = htons(0);
+
+  /* Add question section */
+  p = (unsigned char *)(header + 1);
+  p = do_rfc1035_name(p, qname, NULL);
+  *p++ = 0; /* terminate name */
+  PUTSHORT(T_AXFR, p);
+  PUTSHORT(C_IN, p);
+
+  return p; /* return pointer to start of answer section */
+}
+
+int answer_auth_axfr(int fd, struct dns_header *orig_header, size_t qlen,
+                     time_t now, union mysockaddr *peer_addr)
+{
+  /* Buffer: 2 bytes for length prefix + 65536 for DNS message */
+  unsigned char *packet = whine_malloc(sizeof(u16) + AXFR_BUFFER_SIZE);
+  struct dns_header *header;
+  unsigned char *ansp, *limit;
+  char *name = daemon->namebuff;
+  char qname[MAXDNAME];  /* Save query name - namebuff gets reused */
+  char *authname = NULL;
+  char *cut;
+  int axfroffset;
+  int anscount = 0;
+  int trunc = 0;
+  struct auth_zone *zone = NULL;
+  struct mx_srv_record *rec;
+  struct txt_record *txt;
+  struct interface_name *intr;
+  struct naptr *na;
+  struct cname *a;
+  struct crec *crecp;
+  unsigned short qtype, qclass, id;
+  unsigned char *p;
+
+  (void)now; /* unused parameter */
+
+  if (!packet)
+    return 0;
+
+  header = (struct dns_header *)(packet + sizeof(u16));
+  limit = packet + sizeof(u16) + AXFR_BUFFER_SIZE;
+  id = orig_header->id;
+
+  /* Extract query name and find zone */
+  p = (unsigned char *)(orig_header + 1);
+  if (!extract_name(orig_header, qlen, &p, qname, EXTR_NAME_EXTRACT, 1))
+    {
+      free(packet);
+      return 0;
+    }
+
+  GETSHORT(qtype, p);
+  GETSHORT(qclass, p);
+
+  if (qtype != T_AXFR || qclass != C_IN)
+    {
+      free(packet);
+      return 0;
+    }
+
+  /* Find the zone */
+  for (zone = daemon->auth_zones; zone; zone = zone->next)
+    if (in_zone(zone, qname, NULL))
+      break;
+
+  if (!zone)
+    {
+      free(packet);
+      return 0;
+    }
+
+  authname = zone->domain;
+
+  /* Check if peer is allowed to do zone transfer */
+  if (daemon->auth_peers)
+    {
+      struct iname *peers;
+      int allowed = 0;
+
+      for (peers = daemon->auth_peers; peers; peers = peers->next)
+        {
+          if (peers->addr.sa.sa_family == AF_INET &&
+              peer_addr->sa.sa_family == AF_INET &&
+              peers->addr.in.sin_addr.s_addr == peer_addr->in.sin_addr.s_addr)
+            {
+              allowed = 1;
+              break;
+            }
+          else if (peers->addr.sa.sa_family == AF_INET6 &&
+                   peer_addr->sa.sa_family == AF_INET6 &&
+                   IN6_ARE_ADDR_EQUAL(&peers->addr.in6.sin6_addr, &peer_addr->in6.sin6_addr))
+            {
+              allowed = 1;
+              break;
+            }
+        }
+
+      if (!allowed)
+        {
+          free(packet);
+          return 0;
+        }
+    }
+  else if (!daemon->secondary_forward_server)
+    {
+      /* No auth-peer and no auth-sec-servers - refuse AXFR */
+      free(packet);
+      return 0;
+    }
+
+  log_query(F_AUTH | F_RRNAME, zone->domain, NULL, "<AXFR>", 0);
+
+  /* Initialize first message */
+  ansp = axfr_init_message(header, id, qname);
+
+  /* Record offset for zone name compression */
+  axfroffset = sizeof(struct dns_header);
+
+  /* First record must be SOA */
+  if (!axfr_add_soa(header, (char *)limit, &ansp, axfroffset))
+    {
+      free(packet);
+      return 0;
+    }
+  anscount = 1;
+
+  /* Macro to check if we need to flush and send current message */
+#define AXFR_CHECK_FLUSH() do { \
+    if ((ansp - (unsigned char *)header) > AXFR_FLUSH_THRESHOLD) { \
+      header->ancount = htons(anscount); \
+      if (!axfr_send_message(fd, packet, ansp - (unsigned char *)header)) { \
+        free(packet); \
+        return 0; \
+      } \
+      ansp = axfr_init_message(header, id, qname); \
+      anscount = 0; \
+      trunc = 0; \
+    } \
+  } while(0)
+
+  /* Add NS records */
+  if (daemon->authserver)
+    {
+      trunc = 0;
+      if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                              daemon->auth_ttl, NULL, T_NS, C_IN, "d",
+                              axfroffset == 0 ? authname : NULL, daemon->authserver))
+        anscount++;
+      AXFR_CHECK_FLUSH();
+    }
+
+  /* Add secondary NS records */
+  if (daemon->secondary_forward_server)
+    {
+      struct name_list *secondary;
+      for (secondary = daemon->secondary_forward_server; secondary; secondary = secondary->next)
+        {
+          trunc = 0;
+          if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                  daemon->auth_ttl, NULL, T_NS, C_IN, "d",
+                                  axfroffset == 0 ? authname : NULL, secondary->name))
+            anscount++;
+          AXFR_CHECK_FLUSH();
+        }
+    }
+
+  /* MX and SRV records */
+  for (rec = daemon->mxnames; rec; rec = rec->next)
+    if (in_zone(zone, rec->name, &cut))
+      {
+        if (cut)
+          *cut = 0;
+
+        trunc = 0;
+        if (rec->issrv)
+          {
+            if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                    daemon->auth_ttl, NULL, T_SRV, C_IN, "sssd",
+                                    cut ? rec->name : NULL,
+                                    rec->priority, rec->weight, rec->srvport, rec->target))
+              anscount++;
+          }
+        else
+          {
+            if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                    daemon->auth_ttl, NULL, T_MX, C_IN, "sd",
+                                    cut ? rec->name : NULL, rec->weight, rec->target))
+              anscount++;
+          }
+
+        if (cut)
+          *cut = '.';
+        AXFR_CHECK_FLUSH();
+      }
+
+  /* Generic RR records */
+  for (txt = daemon->rr; txt; txt = txt->next)
+    if (in_zone(zone, txt->name, &cut))
+      {
+        if (cut)
+          *cut = 0;
+
+        trunc = 0;
+        if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                daemon->auth_ttl, NULL, txt->class, C_IN, "t",
+                                cut ? txt->name : NULL, txt->len, txt->txt))
+          anscount++;
+
+        if (cut)
+          *cut = '.';
+        AXFR_CHECK_FLUSH();
+      }
+
+  /* TXT records */
+  for (txt = daemon->txt; txt; txt = txt->next)
+    if (txt->class == C_IN && in_zone(zone, txt->name, &cut))
+      {
+        if (cut)
+          *cut = 0;
+
+        trunc = 0;
+        if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                daemon->auth_ttl, NULL, T_TXT, C_IN, "t",
+                                cut ? txt->name : NULL, txt->len, txt->txt))
+          anscount++;
+
+        if (cut)
+          *cut = '.';
+        AXFR_CHECK_FLUSH();
+      }
+
+  /* NAPTR records */
+  for (na = daemon->naptr; na; na = na->next)
+    if (in_zone(zone, na->name, &cut))
+      {
+        if (cut)
+          *cut = 0;
+
+        trunc = 0;
+        if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                daemon->auth_ttl, NULL, T_NAPTR, C_IN, "sszzzd",
+                                cut ? na->name : NULL,
+                                na->order, na->pref, na->flags, na->services, na->regexp, na->replace))
+          anscount++;
+
+        if (cut)
+          *cut = '.';
+        AXFR_CHECK_FLUSH();
+      }
+
+  /* Interface name records */
+  for (intr = daemon->int_names; intr; intr = intr->next)
+    if (in_zone(zone, intr->name, &cut))
+      {
+        struct addrlist *addrlist;
+
+        if (cut)
+          *cut = 0;
+
+        for (addrlist = intr->addr; addrlist; addrlist = addrlist->next)
+          {
+            trunc = 0;
+            if (!(addrlist->flags & ADDRLIST_IPV6))
+              {
+                if (filter_zone(zone, F_IPV4, &addrlist->addr) &&
+                    add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                        daemon->auth_ttl, NULL, T_A, C_IN, "4",
+                                        cut ? intr->name : NULL, &addrlist->addr))
+                  anscount++;
+              }
+            else
+              {
+                if (filter_zone(zone, F_IPV6, &addrlist->addr) &&
+                    add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                        daemon->auth_ttl, NULL, T_AAAA, C_IN, "6",
+                                        cut ? intr->name : NULL, &addrlist->addr))
+                  anscount++;
+              }
+            AXFR_CHECK_FLUSH();
+          }
+
+        if (cut)
+          *cut = '.';
+      }
+
+  /* CNAME records */
+  for (a = daemon->cnames; a; a = a->next)
+    if (in_zone(zone, a->alias, &cut))
+      {
+        char target[MAXDNAME];
+        strcpy(target, a->target);
+        if (!strchr(target, '.'))
+          {
+            strcat(target, ".");
+            strcat(target, zone->domain);
+          }
+
+        if (cut)
+          *cut = 0;
+
+        trunc = 0;
+        if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                daemon->auth_ttl, NULL, T_CNAME, C_IN, "d",
+                                cut ? a->alias : NULL, target))
+          anscount++;
+
+        if (cut)
+          *cut = '.';
+        AXFR_CHECK_FLUSH();
+      }
+
+  /* Cached records (DHCP leases, /etc/hosts, host-record) */
+  cache_enumerate(1);
+  while ((crecp = cache_enumerate(0)))
+    {
+      if ((crecp->flags & (F_IPV4 | F_IPV6)) &&
+          !(crecp->flags & (F_NEG | F_NXDOMAIN)) &&
+          (crecp->flags & F_FORWARD))
+        {
+          char *cache_name = cache_get_name(crecp);
+
+          if ((crecp->flags & F_DHCP) && !option_bool(OPT_DHCP_FQDN))
+            {
+              if (!strchr(cache_name, '.') &&
+                  filter_zone(zone, (crecp->flags & (F_IPV6 | F_IPV4)), &crecp->addr))
+                {
+                  trunc = 0;
+                  if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                          daemon->auth_ttl, NULL,
+                                          (crecp->flags & F_IPV6) ? T_AAAA : T_A, C_IN,
+                                          (crecp->flags & F_IPV4) ? "4" : "6",
+                                          cache_name, &crecp->addr))
+                    anscount++;
+                  AXFR_CHECK_FLUSH();
+                }
+            }
+
+          if ((crecp->flags & F_HOSTS) || ((crecp->flags & F_DHCP) && option_bool(OPT_DHCP_FQDN)))
+            {
+              strcpy(name, cache_name);
+              if (in_zone(zone, name, &cut) &&
+                  filter_zone(zone, (crecp->flags & (F_IPV6 | F_IPV4)), &crecp->addr))
+                {
+                  if (cut)
+                    *cut = 0;
+
+                  trunc = 0;
+                  if (add_resource_record(header, (char *)limit, &trunc, -axfroffset, &ansp,
+                                          daemon->auth_ttl, NULL,
+                                          (crecp->flags & F_IPV6) ? T_AAAA : T_A, C_IN,
+                                          (crecp->flags & F_IPV4) ? "4" : "6",
+                                          cut ? name : NULL, &crecp->addr))
+                    anscount++;
+
+                  if (cut)
+                    *cut = '.';
+                  AXFR_CHECK_FLUSH();
+                }
+            }
+        }
+    }
+
+  /* Final SOA record */
+  trunc = 0;
+  if (!axfr_add_soa(header, (char *)limit, &ansp, axfroffset))
+    {
+      free(packet);
+      return 0;
+    }
+  anscount++;
+
+  /* Send final message */
+  header->ancount = htons(anscount);
+  if (!axfr_send_message(fd, packet, ansp - (unsigned char *)header))
+    {
+      free(packet);
+      return 0;
+    }
+
+  free(packet);
+  return 1;
+}
+
 #endif  
