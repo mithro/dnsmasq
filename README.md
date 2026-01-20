@@ -1,29 +1,55 @@
-# dnsmasq Mirror
+# dnsmasq - Automatically Updated GitHub Mirror
 
-This repository is an automatically-synced mirror of the upstream dnsmasq repository.
+This repository is an **automatically synchronised mirror** of the official upstream dnsmasq repository.
 
 ## Upstream Source
 
-- **Official git**: `git://thekelleys.org.uk/dnsmasq.git`
-- **Official website**: https://thekelleys.org.uk/dnsmasq/doc.html
-- **Author**: Simon Kelley
+| | |
+|---|---|
+| **Official git** | `git://thekelleys.org.uk/dnsmasq.git` |
+| **Official website** | https://thekelleys.org.uk/dnsmasq/doc.html |
+| **Author** | Simon Kelley |
 
-## Sync Schedule
+## How This Mirror Works
 
-This mirror is automatically synchronised with upstream daily at 06:00 UTC via GitHub Actions.
+A GitHub Actions workflow runs **daily at 06:00 UTC** to:
 
-All branches and tags from the upstream repository are mirrored.
+1. Fetch all branches and tags from `git://thekelleys.org.uk/dnsmasq.git`
+2. Push them to this repository
 
-## Branches
+This ensures the mirror stays current with upstream without manual intervention.
 
-- `github-actions` - Contains only the GitHub Actions workflow for syncing (this branch)
-- All other branches are mirrored directly from upstream
+## Repository Structure
+
+| Branch | Purpose |
+|--------|---------|
+| `github-actions` | Contains only the sync workflow (this branch, the default) |
+| `master` | Mirror of upstream `master` branch |
+| All other branches | Mirrored directly from upstream |
+
+The `github-actions` branch is **never touched** by the sync workflow - it only contains the automation infrastructure.
+
+## Using This Mirror
+
+To clone the dnsmasq source code:
+
+```bash
+# Clone the master branch (upstream mirror)
+git clone -b master https://github.com/mithro/dnsmasq.git
+
+# Or clone a specific version tag
+git clone -b v2.91 https://github.com/mithro/dnsmasq.git
+```
 
 ## Manual Sync
 
-To trigger a manual sync, go to Actions > "Sync with Upstream dnsmasq" > "Run workflow".
+To trigger a manual sync: **Actions** → **Sync with Upstream dnsmasq** → **Run workflow**
+
+## Why This Mirror Exists
+
+The most popular GitHub mirror ([imp/dnsmasq](https://github.com/imp/dnsmasq)) has not been updated since May 2022. This mirror provides an automatically-updated alternative.
 
 ## License
 
 dnsmasq is distributed under the GPL, version 2 or version 3 at your discretion.
-See the COPYING file in the master branch for details.
+See the COPYING file in the `master` branch for details.

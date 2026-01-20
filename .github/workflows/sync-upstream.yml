@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get all upstream branches
-          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|upstream/||'); do
+          # Get all upstream branches (excluding github-actions which is ours)
+          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|.*upstream/||' | grep -v '^github-actions$'); do
             echo "Syncing branch: $branch"
 
             # Create or update local branch from upstream
