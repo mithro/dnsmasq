@@ -669,8 +669,8 @@ size_t answer_auth(struct dns_header *header, char *limit, size_t qlen, time_t n
 
 	  if (!subnet)
 	    for (secondary = daemon->secondary_forward_server; secondary; secondary = secondary->next)
-	      if (add_resource_record(header, limit, &trunc, offset, &ansp, 
-				      daemon->auth_ttl, NULL, T_NS, C_IN, "d", secondary->name))
+	      if (add_resource_record(header, limit, &trunc, -offset, &ansp,
+				      daemon->auth_ttl, NULL, T_NS, C_IN, "d", offset == 0 ? authname : NULL, secondary->name))
 		{
 		  if (ns) 
 		    anscount++;
