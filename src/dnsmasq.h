@@ -1939,6 +1939,9 @@ void dump_packet_icmp(int mask, void *packet, size_t len, union mysockaddr *src,
 		      union mysockaddr *dst);
 #endif
 
+/* dumpconf.c */
+void dump_config(void);
+
 /* domain-match.c */
 void build_server_array(void);
 int lookup_domain(char *qdomain, int flags, int *lowout, int *highout);
