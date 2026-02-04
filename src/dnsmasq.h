@@ -290,7 +290,8 @@ struct event_desc {
 #define OPT_AUTH_LOG       76
 #define OPT_LEASEQUERY     77
 #define OPT_LOG_ONLY_FAILED 78
-#define OPT_LAST           79
+#define OPT_PIN_WILDCARD   79
+#define OPT_LAST           80
 
 #define OPTION_BITS (sizeof(unsigned int)*8)
 #define OPTION_SIZE ( (OPT_LAST/OPTION_BITS)+((OPT_LAST%OPTION_BITS)!=0) )
@@ -914,6 +915,7 @@ struct hwaddr_config {
   int hwaddr_len, hwaddr_type;
   unsigned char hwaddr[DHCP_CHADDR_MAX];
   unsigned int wildcard_mask;
+  int pinned;                    /* 1 = dynamically pinned to client MAC */
   struct hwaddr_config *next;
 };
 
@@ -1845,6 +1847,13 @@ struct dhcp_config *find_config(struct dhcp_config *configs,
 				int hw_type, char *hostname,
 				struct dhcp_netid *filter);
 int config_has_mac(struct dhcp_config *config, unsigned char *hwaddr, int len, int type);
+void pin_mac_to_config(struct dhcp_config *config, unsigned char *hwaddr, int hw_len, int hw_type);
+void unpin_mac_from_config(struct dhcp_config *config, unsigned char *hwaddr, int hw_len, int hw_type);
+void rebuild_wildcard_pins(void);
+struct dhcp_config *find_config_wildcard_iterate(struct dhcp_config *configs,
+    struct dhcp_context *context, unsigned char *clid, int clid_len,
+    unsigned char *hwaddr, int hw_len, int hw_type, char *hostname,
+    struct dhcp_netid *tags, struct dhcp_config *exclude);
 #ifdef HAVE_LINUX_NETWORK
 char *whichdevice(void);
 int bind_dhcp_devices(char *bound_device);

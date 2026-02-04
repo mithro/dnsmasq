@@ -77,6 +77,7 @@ static const struct {
   { OPT_NO_IDENT, "no-ident" },
   { OPT_NO_0x20, "no-0x20-encode" },
   { OPT_DO_0x20, "do-0x20-encode" },
+  { OPT_PIN_WILDCARD, "dhcp-pin-wildcard" },
   { -1, NULL }
 };
 

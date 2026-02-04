@@ -1258,8 +1258,48 @@ int do_script_run(time_t now)
 	  emit_dbus_signal(ACTION_DEL, lease, lease->old_hostname);
 #endif
 	  old_leases = lease->next;
-	  
-	  free(lease->hostname); 
+
+	  /* Unpin MAC from wildcard config when lease expires,
+	     but only if no other lease (v4 or v6) still uses this config. */
+	  if (option_bool(OPT_PIN_WILDCARD) && lease->hwaddr_len > 0)
+	    {
+	      struct dhcp_config *cfg = NULL;
+	      int other_lease_exists = 0;
+
+	      if (lease->addr.s_addr != 0)
+		cfg = config_find_by_address(daemon->dhcp_conf, lease->addr);
+#ifdef HAVE_DHCP6
+	      if (!cfg && !IN6_IS_ADDR_UNSPECIFIED(&lease->addr6))
+		cfg = config_find_by_address6(daemon->dhcp_conf, NULL, 0, &lease->addr6);
+#endif
+	      if (cfg)
+		{
+		  /* Check if any other active lease references this config's addresses.
+		     Only unpin when neither v4 nor v6 lease remains. */
+		  if (have_config(cfg, CONFIG_ADDR))
+		    {
+		      struct dhcp_lease *l4 = lease_find_by_addr(cfg->addr);
+		      if (l4 && l4 != lease)
+			other_lease_exists = 1;
+		    }
+#ifdef HAVE_DHCP6
+		  if (!other_lease_exists && have_config(cfg, CONFIG_ADDR6))
+		    {
+		      struct addrlist *al;
+		      for (al = cfg->addr6; al; al = al->next)
+			{
+			  struct dhcp_lease *l6 = lease6_find_by_plain_addr(&al->addr.addr6);
+			  if (l6 && l6 != lease)
+			    { other_lease_exists = 1; break; }
+			}
+		    }
+#endif
+		  if (!other_lease_exists)
+		    unpin_mac_from_config(cfg, lease->hwaddr, lease->hwaddr_len, lease->hwaddr_type);
+		}
+	    }
+
+	  free(lease->hostname);
 	  free(lease->clid);
 	  free(lease->extradata);
 	  free(lease->agent_id);

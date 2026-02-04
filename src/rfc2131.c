@@ -1303,9 +1303,11 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 	  
 	  if (have_config(config, CONFIG_ADDR))
 	    {
+	      int config_addr_ok = 1;
+
 	      inet_ntop(AF_INET, &config->addr, daemon->addrbuff, ADDRSTRLEN);
-	      
-	      if ((ltmp = lease_find_by_addr(config->addr)) && 
+
+	      if ((ltmp = lease_find_by_addr(config->addr)) &&
 		  ltmp != lease &&
 		  !config_has_mac(config, ltmp->hwaddr, ltmp->hwaddr_len, ltmp->hwaddr_type))
 		{
@@ -1314,6 +1316,7 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 						       ltmp->hwaddr, ltmp->clid_len, ltmp->clid, &len);
 		  my_syslog(MS_DHCP | LOG_WARNING, _("not using configured address %s because it is leased to %s"),
 			    daemon->addrbuff, print_mac(daemon->namebuff, mac, len));
+		  config_addr_ok = 0;
 		}
 	      else
 		{
@@ -1322,18 +1325,62 @@ size_t dhcp_reply(struct dhcp_context *context, char *iface_name, int int_index,
 		    if (context->router.s_addr == config->addr.s_addr)
 		      break;
 		  if (tmp)
-		    my_syslog(MS_DHCP | LOG_WARNING, _("not using configured address %s because it is in use by the server or relay"), daemon->addrbuff);
+		    {
+		      my_syslog(MS_DHCP | LOG_WARNING, _("not using configured address %s because it is in use by the server or relay"), daemon->addrbuff);
+		      config_addr_ok = 0;
+		    }
 		  else if (have_config(config, CONFIG_DECLINED) &&
 			   difftime(now, config->decline_time) < (float)DECLINE_BACKOFF)
-		    my_syslog(MS_DHCP | LOG_WARNING, _("not using configured address %s because it was previously declined"), daemon->addrbuff);
+		    {
+		      my_syslog(MS_DHCP | LOG_WARNING, _("not using configured address %s because it was previously declined"), daemon->addrbuff);
+		      config_addr_ok = 0;
+		    }
 		  else
 		    conf = config->addr;
+		}
+
+	      /* If pin-wildcard is enabled and the configured address wasn't usable,
+		 try other wildcard configs with available addresses.
+		 find_config_wildcard_iterate uses cursor-based iteration,
+		 walking the config list in order to guarantee forward progress. */
+	      if (!config_addr_ok && option_bool(OPT_PIN_WILDCARD))
+		{
+		  struct dhcp_config *alt, *cursor = NULL;
+		  while ((alt = find_config_wildcard_iterate(daemon->dhcp_conf, context,
+			    clid, clid_len, mess->chaddr, mess->hlen, mess->htype,
+			    hostname, tagif_netid, cursor)))
+		    {
+		      if (have_config(alt, CONFIG_ADDR) &&
+			  !lease_find_by_addr(alt->addr) &&
+			  !(have_config(alt, CONFIG_DECLINED) &&
+			    difftime(now, alt->decline_time) < (float)DECLINE_BACKOFF))
+			{
+			  struct dhcp_context *tmp;
+			  int in_use = 0;
+			  for (tmp = context; tmp; tmp = tmp->current)
+			    if (tmp->router.s_addr == alt->addr.s_addr)
+			      { in_use = 1; break; }
+			  if (!in_use)
+			    {
+			      /* Use this alternative config for all downstream processing */
+			      config = alt;
+			      conf = config->addr;
+			      inet_ntop(AF_INET, &config->addr, daemon->addrbuff, ADDRSTRLEN);
+			      break;
+			    }
+			}
+		      cursor = alt;
+		    }
 		}
 	    }
 	  
 	  if (conf.s_addr)
-	    mess->yiaddr = conf;
-	  else if (lease && 
+	    {
+	      mess->yiaddr = conf;
+	      if (option_bool(OPT_PIN_WILDCARD) && config)
+		pin_mac_to_config(config, mess->chaddr, mess->hlen, mess->htype);
+	    }
+	  else if (lease &&
 		   address_available(context, lease->addr, tagif_netid) && 
 		   !config_find_by_address(daemon->dhcp_conf, lease->addr))
 	    mess->yiaddr = lease->addr;

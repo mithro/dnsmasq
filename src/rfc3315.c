@@ -715,6 +715,38 @@ static int dhcp6_no_relay(struct state *state, int msg_type, unsigned char *inbu
 			mark_config_used(c, &addr);
 			if (have_config(config, CONFIG_TIME))
 			  lease_time = config->lease_time;
+			if (option_bool(OPT_PIN_WILDCARD) && config && state->mac_len > 0)
+			  pin_mac_to_config(config, state->mac, state->mac_len, state->mac_type);
+		      }
+		    else if (!(c->flags & CONTEXT_CONF_USED) && option_bool(OPT_PIN_WILDCARD))
+		      {
+			/* Try alternative wildcard configs */
+			struct dhcp_config *alt, *cursor = NULL;
+			int found_alt = 0;
+			while ((alt = find_config_wildcard_iterate(daemon->dhcp_conf, state->context,
+				  state->clid, state->clid_len, state->mac, state->mac_len,
+				  state->mac_type, state->client_hostname, solicit_tags, cursor)))
+			  {
+			    if (config_valid(alt, c, &addr, state, now))
+			      {
+				req_addr = addr;
+				mark_config_used(c, &addr);
+				if (have_config(alt, CONFIG_TIME))
+				  lease_time = alt->lease_time;
+				if (state->mac_len > 0)
+				  pin_mac_to_config(alt, state->mac, state->mac_len, state->mac_type);
+				found_alt = 1;
+				break;
+			      }
+			    cursor = alt;
+			  }
+			if (!found_alt)
+			  {
+			    if (!(c = address6_available(state->context, &req_addr, solicit_tags, plain_range)))
+			      continue;
+			    else if (!check_address(state, &req_addr))
+			      continue;
+			  }
 		      }
 		    else if (!(c = address6_available(state->context, &req_addr, solicit_tags, plain_range)))
 		      continue; /* not an address we're allowed */
@@ -730,22 +762,49 @@ static int dhcp6_no_relay(struct state *state, int msg_type, unsigned char *inbu
 	      }
 	    
 	    /* Suggest configured address(es) */
-	    for (c = state->context; c; c = c->current) 
+	    for (c = state->context; c; c = c->current)
 	      if (!(c->flags & CONTEXT_CONF_USED) &&
-		  match_netid(c->filter, solicit_tags, plain_range) &&
-		  config_valid(config, c, &addr, state, now))
+		  match_netid(c->filter, solicit_tags, plain_range))
 		{
-		  mark_config_used(state->context, &addr);
-		  if (have_config(config, CONFIG_TIME))
-		    lease_time = config->lease_time;
-		  else
-		    lease_time = c->lease_time;
+		  struct dhcp_config *use_config = config;
+		  int found = config_valid(config, c, &addr, state, now);
 
-		  /* add address to output packet */
-		  add_address(state, c, lease_time, NULL, &min_time, &addr, now);
-		  mark_context_used(state, &addr);
-		  get_context_tag(state, c);
-		  address_assigned = 1;
+		  if (!found && option_bool(OPT_PIN_WILDCARD))
+		    {
+		      struct dhcp_config *alt, *cursor = NULL;
+		      while ((alt = find_config_wildcard_iterate(daemon->dhcp_conf, state->context,
+				state->clid, state->clid_len, state->mac, state->mac_len,
+				state->mac_type, state->client_hostname, solicit_tags, cursor)))
+			{
+			  if (config_valid(alt, c, &addr, state, now))
+			    {
+			      use_config = alt;
+			      found = 1;
+			      if (state->mac_len > 0)
+				pin_mac_to_config(alt, state->mac, state->mac_len, state->mac_type);
+			      break;
+			    }
+			  cursor = alt;
+			}
+		    }
+
+		  if (found)
+		    {
+		      mark_config_used(state->context, &addr);
+		      if (have_config(use_config, CONFIG_TIME))
+			lease_time = use_config->lease_time;
+		      else
+			lease_time = c->lease_time;
+
+		      /* add address to output packet */
+		      add_address(state, c, lease_time, NULL, &min_time, &addr, now);
+		      mark_context_used(state, &addr);
+		      get_context_tag(state, c);
+		      address_assigned = 1;
+
+		      if (option_bool(OPT_PIN_WILDCARD) && use_config == config && state->mac_len > 0)
+			pin_mac_to_config(config, state->mac, state->mac_len, state->mac_type);
+		    }
 		}
 	    
 	    /* return addresses for existing leases */

@@ -1811,8 +1811,9 @@ void clear_cache_and_reload(time_t now)
       if (option_bool(OPT_ETHERS))
 	dhcp_read_ethers();
       dhcp_update_configs(daemon->dhcp_conf);
-      lease_update_from_configs(); 
-      lease_update_file(now); 
+      rebuild_wildcard_pins();
+      lease_update_from_configs();
+      lease_update_file(now);
       lease_update_dns(1);
     }
 #ifdef HAVE_DHCP6

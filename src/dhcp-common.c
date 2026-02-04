@@ -331,6 +331,26 @@ int config_has_mac(struct dhcp_config *config, unsigned char *hwaddr, int len, i
   return 0;
 }
 
+/* Check if config has any pinned (dynamically assigned) MAC entries */
+static int config_has_pinned_mac(struct dhcp_config *config)
+{
+  struct hwaddr_config *conf_addr;
+  for (conf_addr = config->hwaddr; conf_addr; conf_addr = conf_addr->next)
+    if (conf_addr->pinned)
+      return 1;
+  return 0;
+}
+
+/* Check if config has any wildcard MAC patterns */
+static int config_has_wildcard(struct dhcp_config *config)
+{
+  struct hwaddr_config *conf_addr;
+  for (conf_addr = config->hwaddr; conf_addr; conf_addr = conf_addr->next)
+    if (conf_addr->wildcard_mask != 0)
+      return 1;
+  return 0;
+}
+
 static int is_config_in_context(struct dhcp_context *context, struct dhcp_config *config)
 {
   if (!context) /* called via find_config() from lease_update_from_configs() */
@@ -424,7 +444,8 @@ static struct dhcp_config *find_config_match(struct dhcp_config *configs,
 	match_netid(config->filter, tags, tag_not_needed))
       for (conf_addr = config->hwaddr; conf_addr; conf_addr = conf_addr->next)
 	if (conf_addr->wildcard_mask != 0 &&
-	    conf_addr->hwaddr_len == hw_len &&	
+	    !(option_bool(OPT_PIN_WILDCARD) && config_has_pinned_mac(config)) &&
+	    conf_addr->hwaddr_len == hw_len &&
 	    (conf_addr->hwaddr_type == hw_type || conf_addr->hwaddr_type == 0) &&
 	    (new = memcmp_masked(conf_addr->hwaddr, hwaddr, hw_len, conf_addr->wildcard_mask)) > count)
 	  {
@@ -448,6 +469,181 @@ struct dhcp_config *find_config(struct dhcp_config *configs,
     ret = find_config_match(configs, context, clid, clid_len, hwaddr, hw_len, hw_type, hostname, tags, 1);
 
   return ret;
+}
+
+void pin_mac_to_config(struct dhcp_config *config, unsigned char *hwaddr, int hw_len, int hw_type)
+{
+  struct hwaddr_config *newhw;
+
+  if (!config || !option_bool(OPT_PIN_WILDCARD))
+    return;
+
+  if (hw_len <= 0 || hw_len > DHCP_CHADDR_MAX)
+    return;
+
+  /* Only pin to configs that have wildcard entries */
+  if (!config_has_wildcard(config))
+    return;
+
+  /* Idempotent: don't pin if this MAC already matches exactly */
+  if (config_has_mac(config, hwaddr, hw_len, hw_type))
+    return;
+
+  if (!(newhw = whine_malloc(sizeof(struct hwaddr_config))))
+    return;
+
+  memcpy(newhw->hwaddr, hwaddr, hw_len);
+  newhw->hwaddr_len = hw_len;
+  newhw->hwaddr_type = hw_type;
+  newhw->wildcard_mask = 0;
+  newhw->pinned = 1;
+  newhw->next = config->hwaddr;
+  config->hwaddr = newhw;
+
+  if (option_bool(OPT_LOG_OPTS))
+    my_syslog(MS_DHCP | LOG_INFO, _("wildcard pin: %s pinned to config"),
+	      print_mac(daemon->namebuff, hwaddr, hw_len));
+}
+
+void unpin_mac_from_config(struct dhcp_config *config, unsigned char *hwaddr, int hw_len, int hw_type)
+{
+  struct hwaddr_config **up, *conf_addr;
+
+  if (!config)
+    return;
+
+  for (up = &config->hwaddr; *up; )
+    {
+      conf_addr = *up;
+      if (conf_addr->pinned &&
+	  conf_addr->hwaddr_len == hw_len &&
+	  (conf_addr->hwaddr_type == hw_type || conf_addr->hwaddr_type == 0) &&
+	  memcmp(conf_addr->hwaddr, hwaddr, hw_len) == 0)
+	{
+	  *up = conf_addr->next;
+
+	  if (option_bool(OPT_LOG_OPTS))
+	    my_syslog(MS_DHCP | LOG_INFO, _("wildcard unpin: %s unpinned from config"),
+		      print_mac(daemon->namebuff, hwaddr, hw_len));
+
+	  free(conf_addr);
+	}
+      else
+	up = &conf_addr->next;
+    }
+}
+
+static void unpin_all_from_config(struct dhcp_config *config)
+{
+  struct hwaddr_config **up, *conf_addr;
+
+  for (up = &config->hwaddr; *up; )
+    {
+      conf_addr = *up;
+      if (conf_addr->pinned)
+	{
+	  *up = conf_addr->next;
+	  free(conf_addr);
+	}
+      else
+	up = &conf_addr->next;
+    }
+}
+
+void rebuild_wildcard_pins(void)
+{
+  struct dhcp_config *config;
+  struct dhcp_lease *lease;
+
+  if (!option_bool(OPT_PIN_WILDCARD))
+    return;
+
+  /* Strip all existing pins */
+  for (config = daemon->dhcp_conf; config; config = config->next)
+    unpin_all_from_config(config);
+
+  /* Re-pin from active v4 leases */
+  for (config = daemon->dhcp_conf; config; config = config->next)
+    {
+      if (!config_has_wildcard(config))
+	continue;
+
+      if (have_config(config, CONFIG_ADDR) &&
+	  (lease = lease_find_by_addr(config->addr)) &&
+	  lease->hwaddr_len > 0)
+	{
+	  pin_mac_to_config(config, lease->hwaddr, lease->hwaddr_len, lease->hwaddr_type);
+	  continue;
+	}
+
+#ifdef HAVE_DHCP6
+      /* Check v6 addresses */
+      if (have_config(config, CONFIG_ADDR6))
+	{
+	  struct addrlist *addr_list;
+	  for (addr_list = config->addr6; addr_list; addr_list = addr_list->next)
+	    {
+	      if ((lease = lease6_find_by_plain_addr(&addr_list->addr.addr6)) &&
+		  (lease->flags & LEASE_HAVE_HWADDR) &&
+		  lease->hwaddr_len > 0)
+		{
+		  pin_mac_to_config(config, lease->hwaddr, lease->hwaddr_len, lease->hwaddr_type);
+		  break;
+		}
+	    }
+	}
+#endif
+    }
+}
+
+/* Find next wildcard config after cursor, skipping pinned configs.
+   Pass NULL cursor to start from beginning. Returns configs in
+   linked-list order, guaranteeing forward progress for callers. */
+struct dhcp_config *find_config_wildcard_iterate(struct dhcp_config *configs,
+    struct dhcp_context *context, unsigned char *clid, int clid_len,
+    unsigned char *hwaddr, int hw_len, int hw_type, char *hostname,
+    struct dhcp_netid *tags, struct dhcp_config *cursor)
+{
+  struct dhcp_config *config;
+  struct hwaddr_config *conf_addr;
+  int past_cursor = (cursor == NULL);
+
+  (void)clid;
+  (void)clid_len;
+  (void)hostname;
+
+  if (!hwaddr)
+    return NULL;
+
+  /* Walk list in order, starting after cursor, return first wildcard match */
+  for (config = configs; config; config = config->next)
+    {
+      if (!past_cursor)
+	{
+	  if (config == cursor)
+	    past_cursor = 1;
+	  continue;
+	}
+
+      if (config_has_pinned_mac(config))
+	continue;
+
+      if (!is_config_in_context(context, config))
+	continue;
+
+      if (!match_netid(config->filter, tags, 0) &&
+	  !match_netid(config->filter, tags, 1))
+	continue;
+
+      for (conf_addr = config->hwaddr; conf_addr; conf_addr = conf_addr->next)
+	if (conf_addr->wildcard_mask != 0 &&
+	    conf_addr->hwaddr_len == hw_len &&
+	    (conf_addr->hwaddr_type == hw_type || conf_addr->hwaddr_type == 0) &&
+	    memcmp_masked(conf_addr->hwaddr, hwaddr, hw_len, conf_addr->wildcard_mask) > 0)
+	  return config;
+    }
+
+  return NULL;
 }
 
 void dhcp_update_configs(struct dhcp_config *configs)

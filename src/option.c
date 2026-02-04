@@ -198,6 +198,7 @@ struct myoption {
 #define LOPT_LEASEQUERY    389
 #define LOPT_SPLIT_RELAY   390
 #define LOPT_DUMPCONF      391
+#define LOPT_PIN_WILDCARD  392
 
 #ifdef HAVE_GETOPT_LONG
 static const struct option opts[] =  
@@ -400,6 +401,7 @@ static const struct myoption opts[] =
     { "max-tcp-connections", 1, 0, LOPT_MAX_PROCS },
     { "leasequery", 2, 0, LOPT_LEASEQUERY },
     { "dump-config", 0, 0, LOPT_DUMPCONF },
+    { "dhcp-pin-wildcard", 0, 0, LOPT_PIN_WILDCARD },
     { NULL, 0, 0, 0 }
   };
 
@@ -609,6 +611,7 @@ static struct {
   { LOPT_NO_IDENT, OPT_NO_IDENT, NULL, gettext_noop("Do not add CHAOS TXT records."), NULL },
   { LOPT_CACHE_RR, ARG_DUP, "<RR-type>", gettext_noop("Cache this DNS resource record type."), NULL },
   { LOPT_MAX_PROCS, ARG_ONE, "<integer>", gettext_noop("Maximum number of concurrent tcp connections."), NULL },
+  { LOPT_PIN_WILDCARD, OPT_PIN_WILDCARD, NULL, gettext_noop("Pin wildcard dhcp-host entries to client MACs on first allocation."), NULL },
   { 0, 0, NULL, NULL, NULL }
 }; 
 
@@ -4116,7 +4119,7 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
 		else
 		  {
 		    struct hwaddr_config *newhw = opt_malloc(sizeof(struct hwaddr_config));
-		    if ((newhw->hwaddr_len = parse_hex(arg, newhw->hwaddr, DHCP_CHADDR_MAX, 
+		    if ((newhw->hwaddr_len = parse_hex(arg, newhw->hwaddr, DHCP_CHADDR_MAX,
 						       &newhw->wildcard_mask, &newhw->hwaddr_type)) == -1)
 		      {
 			free(newhw);
@@ -4125,6 +4128,7 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
 		      }
 		    else
 		      {
+			newhw->pinned = 0;
 			newhw->next = new->hwaddr;
 			new->hwaddr = newhw;
 		      }		    

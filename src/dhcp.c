@@ -1069,6 +1069,7 @@ void dhcp_read_ethers(void)
 	  config->hwaddr->hwaddr_len = ETHER_ADDR_LEN;
 	  config->hwaddr->hwaddr_type = ARPHRD_ETHER;
 	  config->hwaddr->wildcard_mask = 0;
+	  config->hwaddr->pinned = 0;
 	  config->hwaddr->next = NULL;
 	}
       count++;
