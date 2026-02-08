@@ -201,6 +201,7 @@ struct myoption {
 #define LOPT_LEASEQUERY    389
 #define LOPT_SPLIT_RELAY   390
 #define LOPT_LOG_MALLOC    391
+#define LOPT_LEASE_AWARE   392
 
 #ifdef HAVE_GETOPT_LONG
 static const struct option opts[] =  
@@ -403,6 +404,7 @@ static const struct myoption opts[] =
     { "max-tcp-connections", 1, 0, LOPT_MAX_PROCS },
     { "leasequery", 2, 0, LOPT_LEASEQUERY },
     { "log-malloc", 0, 0, LOPT_LOG_MALLOC },
+    { "lease-aware-dns", 0, 0, LOPT_LEASE_AWARE },
     { NULL, 0, 0, 0 }
   };
 
@@ -612,6 +614,7 @@ static struct {
   { LOPT_CACHE_RR, ARG_DUP, "<RR-type>", gettext_noop("Cache this DNS resource record type."), NULL },
   { LOPT_MAX_PROCS, ARG_ONE, "<integer>", gettext_noop("Maximum number of concurrent tcp connections."), NULL },
   { LOPT_LOG_MALLOC, OPT_LOG_MALLOC, NULL, gettext_noop("Log memory allocation for debugging."), NULL },
+  { LOPT_LEASE_AWARE, OPT_LEASE_AWARE_DNS, NULL, gettext_noop("Filter DNS replies for multi-address names based on active DHCP leases."), NULL },
   { 0, 0, NULL, NULL, NULL }
 }; 
 

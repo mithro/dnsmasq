@@ -691,9 +691,22 @@ struct dhcp_lease *lease_find_by_addr(struct in_addr addr)
   return NULL;
 }
 
+/* Check if an address has an active DHCP lease.
+   Returns 1 if leased, 0 if not. */
+int lease_has_addr(int family, union all_addr *addr)
+{
+  if (family == AF_INET)
+    return !!lease_find_by_addr(addr->addr4);
+#ifdef HAVE_DHCP6
+  if (family == AF_INET6)
+    return !!lease6_find_by_plain_addr(&addr->addr6);
+#endif
+  return 0;
+}
+
 #ifdef HAVE_DHCP6
 /* find address for {CLID, IAID, address} */
-struct dhcp_lease *lease6_find(unsigned char *clid, int clid_len, 
+struct dhcp_lease *lease6_find(unsigned char *clid, int clid_len,
 			       int lease_type, unsigned int iaid,
 			       struct in6_addr *addr)
 {

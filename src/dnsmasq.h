@@ -291,7 +291,8 @@ struct event_desc {
 #define OPT_LEASEQUERY     77
 #define OPT_LOG_ONLY_FAILED  78
 #define OPT_LOG_MALLOC     79
-#define OPT_LAST           80
+#define OPT_LEASE_AWARE_DNS 80
+#define OPT_LAST           81
 
 #define OPTION_BITS (sizeof(unsigned int)*8)
 #define OPTION_SIZE ( (OPT_LAST/OPTION_BITS)+((OPT_LAST%OPTION_BITS)!=0) )
@@ -1663,6 +1664,7 @@ void lease_set_vendorclass(struct dhcp_lease *lease, unsigned char *new, int len
 struct dhcp_lease *lease_find_by_client(unsigned char *hwaddr, int hw_len, int hw_type,  
 					unsigned char *clid, int clid_len);
 struct dhcp_lease *lease_find_by_addr(struct in_addr addr);
+int lease_has_addr(int family, union all_addr *addr);
 struct in_addr lease_find_max_addr(struct dhcp_context *context);
 void lease_prune(struct dhcp_lease *target, time_t now);
 void lease_update_from_configs(void);
