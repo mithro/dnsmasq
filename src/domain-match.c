@@ -430,36 +430,115 @@ size_t make_local_answer(int flags, int gotname, size_t size, struct dns_header 
   
   if (!(p = skip_questions(header, size)))
     return 0;
-	  
+
+  {
+#ifdef HAVE_DHCP
+    int lease_filter_v4 = 0, lease_filter_v6 = 0;
+
+    if (option_bool(OPT_LEASE_AWARE_DNS) && (flags & (F_IPV4 | F_IPV6)))
+      {
+	int v4_count = 0, v6_count = 0, v4_leased = 0, v6_leased = 0;
+	int domain_first = first, domain_last = last;
+
+	/* Roll back to find ALL entry types for this domain */
+	while (domain_first > 0 &&
+	       order_servers(daemon->serverarray[domain_first-1],
+			     daemon->serverarray[domain_first]) == 0)
+	  domain_first--;
+
+	/* Roll forward similarly */
+	while (domain_last < daemon->serverarraysz &&
+	       order_servers(daemon->serverarray[domain_last-1],
+			     daemon->serverarray[domain_last]) == 0)
+	  domain_last++;
+
+	/* Count addresses and check leases across both families */
+	for (start = domain_first; start < domain_last; start++)
+	  {
+	    struct server *srv = daemon->serverarray[start];
+	    if (srv->flags & SERV_4ADDR)
+	      {
+		v4_count++;
+		if (lease_find_by_addr(((struct serv_addr4 *)srv)->addr))
+		  v4_leased++;
+	      }
+#ifdef HAVE_DHCP6
+	    else if (srv->flags & SERV_6ADDR)
+	      {
+		v6_count++;
+		if (lease6_find_by_plain_addr(&((struct serv_addr6 *)srv)->addr))
+		  v6_leased++;
+	      }
+#endif
+	  }
+
+	/* Apply filtering algorithm */
+	{
+	  int total_count = v4_count + v6_count;
+	  int total_leased = v4_leased + v6_leased;
+	  if (total_count > 1 && total_leased > 0)
+	    {
+	      if (v4_leased == 0 && v4_count > 0)
+		lease_filter_v4 = 2;
+	      else if (v4_count > v4_leased)
+		lease_filter_v4 = 1;
+	      if (v6_leased == 0 && v6_count > 0)
+		lease_filter_v6 = 2;
+	      else if (v6_count > v6_leased)
+		lease_filter_v6 = 1;
+	    }
+	}
+      }
+#endif /* HAVE_DHCP */
+
   if (flags & gotname & F_IPV4)
     for (start = first; start != last; start++)
       {
 	struct serv_addr4 *srv = (struct serv_addr4 *)daemon->serverarray[start];
 
+#ifdef HAVE_DHCP
+	if (lease_filter_v4 == 2)
+	  continue;  /* suppress entire family */
+	if (lease_filter_v4 == 1 && !(srv->flags & SERV_ALL_ZEROS) &&
+	    !lease_find_by_addr(srv->addr))
+	  continue;  /* no lease for this address */
+#endif
+
 	if (srv->flags & SERV_ALL_ZEROS)
 	  memset(&addr, 0, sizeof(addr));
 	else
 	  addr.addr4 = srv->addr;
-	
+
 	if (add_resource_record(header, limit, &trunc, sizeof(struct dns_header), &p, daemon->local_ttl, NULL, T_A, C_IN, "4", &addr))
 	  anscount++;
 	log_query((flags | F_CONFIG | F_FORWARD) & ~F_IPV6, name, (union all_addr *)&addr, NULL, 0);
       }
-  
+
   if (flags & gotname & F_IPV6)
     for (start = first; start != last; start++)
       {
 	struct serv_addr6 *srv = (struct serv_addr6 *)daemon->serverarray[start];
 
+#ifdef HAVE_DHCP
+	if (lease_filter_v6 == 2)
+	  continue;  /* suppress entire family */
+#ifdef HAVE_DHCP6
+	if (lease_filter_v6 == 1 && !(srv->flags & SERV_ALL_ZEROS) &&
+	    !lease6_find_by_plain_addr(&srv->addr))
+	  continue;  /* no lease for this address */
+#endif
+#endif
+
 	if (srv->flags & SERV_ALL_ZEROS)
 	  memset(&addr, 0, sizeof(addr));
 	else
 	  addr.addr6 = srv->addr;
-	
+
 	if (add_resource_record(header, limit, &trunc, sizeof(struct dns_header), &p, daemon->local_ttl, NULL, T_AAAA, C_IN, "6", &addr))
 	  anscount++;
 	log_query((flags | F_CONFIG | F_FORWARD) & ~F_IPV4, name, (union all_addr *)&addr, NULL, 0);
       }
+  } /* lease_filter scope */
 
   if (trunc)
     {
