@@ -1928,12 +1928,65 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
 			name, &addr, NULL, 0);
 	    }
 	}
-      
+
+      {
+#ifdef HAVE_DHCP
+	int lease_filter_v4 = 0, lease_filter_v6 = 0;
+
+	if (option_bool(OPT_LEASE_AWARE_DNS))
+	  {
+	    int v4_count = 0, v6_count = 0, v4_leased = 0, v6_leased = 0;
+	    struct crec *scan;
+
+	    /* Count IPv4 entries and check for leases */
+	    for (scan = cache_find_by_name(NULL, name, now, F_IPV4);
+		 scan;
+		 scan = cache_find_by_name(scan, name, now, F_IPV4))
+	      {
+		if (!(scan->flags & (F_HOSTS | F_DHCP | F_CONFIG)) || (scan->flags & F_NEG))
+		  continue;
+		v4_count++;
+		if ((scan->flags & F_DHCP) || lease_find_by_addr(scan->addr.addr4))
+		  v4_leased++;
+	      }
+
+#ifdef HAVE_DHCP6
+	    /* Count IPv6 entries and check for leases */
+	    for (scan = cache_find_by_name(NULL, name, now, F_IPV6);
+		 scan;
+		 scan = cache_find_by_name(scan, name, now, F_IPV6))
+	      {
+		if (!(scan->flags & (F_HOSTS | F_DHCP | F_CONFIG)) || (scan->flags & F_NEG))
+		  continue;
+		v6_count++;
+		if ((scan->flags & F_DHCP) || lease6_find_by_plain_addr(&scan->addr.addr6))
+		  v6_leased++;
+	      }
+#endif
+	    /* Apply filtering algorithm */
+	    {
+	      int total_count = v4_count + v6_count;
+	      int total_leased = v4_leased + v6_leased;
+	      if (total_count > 1 && total_leased > 0)
+		{
+		  if (v4_leased == 0 && v4_count > 0)
+		    lease_filter_v4 = 2;
+		  else if (v4_count > v4_leased)
+		    lease_filter_v4 = 1;
+		  if (v6_leased == 0 && v6_count > 0)
+		    lease_filter_v6 = 2;
+		  else if (v6_count > v6_leased)
+		    lease_filter_v6 = 1;
+		}
+	    }
+	  }
+#endif /* HAVE_DHCP */
+
       for (flag = F_IPV4; flag; flag = (flag == F_IPV4) ? F_IPV6 : 0)
 	{
 	  unsigned short type = (flag == F_IPV6) ? T_AAAA : T_A;
 	  struct interface_name *intr;
-	  
+
 	  if (qtype != type && qtype != T_ANY)
 	    continue;
 	  
@@ -2063,15 +2116,32 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
 			    log_query(stale_flag | crecp->flags, name, NULL, NULL, 0);
 			  }
 		      }
-		    else 
+		    else
 		      {
 			/* If we are returning local answers depending on network,
 			   filter here. */
-			if (localise && 
+			if (localise &&
 			    (crecp->flags & F_HOSTS) &&
 			    !is_same_net(crecp->addr.addr4, local_addr, local_netmask))
 			  continue;
-			
+
+#ifdef HAVE_DHCP
+			/* Lease-aware filtering */
+			{
+			  int lf = (flag == F_IPV4) ? lease_filter_v4 : lease_filter_v6;
+			  if (lf == 2)
+			    continue; /* suppress entire address family */
+			  if (lf == 1)
+			    {
+			      int has_lease = (crecp->flags & F_DHCP) ||
+				lease_has_addr((flag == F_IPV4) ? AF_INET : AF_INET6,
+					       &crecp->addr);
+			      if (!has_lease)
+				continue;
+			    }
+			}
+#endif /* HAVE_DHCP */
+
 			ans = 1;
 			log_query(stale_flag | (crecp->flags & ~F_REVERSE), name, &crecp->addr,
 				  record_source(crecp->uid), 0);
@@ -2092,7 +2162,8 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
 		anscount++;
 	    }
 	}
-      
+      } /* lease_filter scope */
+
       if (qtype == T_MX || qtype == T_ANY)
 	{
 	  int found = 0;
