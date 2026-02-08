@@ -497,7 +497,7 @@ size_t make_local_answer(int flags, int gotname, size_t size, struct dns_header 
 	struct serv_addr4 *srv = (struct serv_addr4 *)daemon->serverarray[start];
 
 #ifdef HAVE_DHCP
-	if (lease_filter_v4 == 2)
+	if (lease_filter_v4 == 2 && !(srv->flags & SERV_ALL_ZEROS))
 	  continue;  /* suppress entire family */
 	if (lease_filter_v4 == 1 && !(srv->flags & SERV_ALL_ZEROS) &&
 	    !lease_find_by_addr(srv->addr))
@@ -520,7 +520,7 @@ size_t make_local_answer(int flags, int gotname, size_t size, struct dns_header 
 	struct serv_addr6 *srv = (struct serv_addr6 *)daemon->serverarray[start];
 
 #ifdef HAVE_DHCP
-	if (lease_filter_v6 == 2)
+	if (lease_filter_v6 == 2 && !(srv->flags & SERV_ALL_ZEROS))
 	  continue;  /* suppress entire family */
 #ifdef HAVE_DHCP6
 	if (lease_filter_v6 == 1 && !(srv->flags & SERV_ALL_ZEROS) &&
