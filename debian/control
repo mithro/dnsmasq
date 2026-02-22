@@ -1,6 +1,5 @@
 Source: dnsmasq
 Section: net
-Priority: optional
 Build-Depends: dh-exec, dh-sequence-installsysusers, gettext, libnetfilter-conntrack-dev [linux-any],
                libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev,
                nettle-dev (>=2.4-3),
