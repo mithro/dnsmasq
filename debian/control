@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Build-Depends: dh-exec, dh-sequence-installsysusers, gettext, libnetfilter-conntrack-dev [linux-any],
                libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev,
-               nettle-dev (>=2.4-3), libbsd-dev [kfreebsd-any],
+               nettle-dev (>=2.4-3),
 	       liblua5.4-dev, dh-runit, debhelper-compat (= 13),
                pkgconf, libnftables-dev
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
