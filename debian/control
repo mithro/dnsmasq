@@ -1,7 +1,7 @@
 Source: dnsmasq
 Section: net
 Priority: optional
-Build-Depends: dh-exec, gettext, libnetfilter-conntrack-dev [linux-any],
+Build-Depends: dh-exec, dh-sequence-installsysusers, gettext, libnetfilter-conntrack-dev [linux-any],
                libidn2-dev, libdbus-1-dev (>=0.61), libgmp-dev,
                nettle-dev (>=2.4-3), libbsd-dev [kfreebsd-any],
 	       liblua5.4-dev, dh-runit, debhelper-compat (= 13),
@@ -35,7 +35,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - system daemon
 Package: dnsmasq-base
 Architecture: any
 Multi-Arch: foreign
-Depends: passwd, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
@@ -49,7 +49,7 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable
 Package: dnsmasq-base-lua
 Architecture: any
 Multi-Arch: foreign
-Depends: passwd, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Breaks: dnsmasq (<< 2.63-1~)
 Replaces: dnsmasq (<< 2.63-1~), dnsmasq-base
 Recommends: dns-root-data
