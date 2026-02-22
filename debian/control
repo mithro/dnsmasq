@@ -1,12 +1,20 @@
 Source: dnsmasq
 Section: net
-Build-Depends: dh-exec, dh-sequence-installsysusers, gettext, libnetfilter-conntrack-dev [linux-any],
-               libidn2-dev, libdbus-1-dev, libgmp-dev,
+Build-Depends: debhelper-compat (= 13),
+               dh-exec,
+               dh-runit,
+               dh-sequence-installsysusers,
+               gettext,
+               libdbus-1-dev,
+               libgmp-dev,
+               libidn2-dev,
+               liblua5.4-dev,
+               libnetfilter-conntrack-dev [linux-any],
+               libnftables-dev,
                nettle-dev,
-	       liblua5.4-dev, dh-runit, debhelper-compat (= 13),
-               pkgconf, libnftables-dev
+               pkgconf,
 Maintainer: Simon Kelley <simon@thekelleys.org.uk>
-Uploaders: Sven Geuer <sge@debian.org>
+Uploaders: Sven Geuer <sge@debian.org>,
 Homepage: https://www.thekelleys.org.uk/dnsmasq/doc.html
 Vcs-Git: https://thekelleys.org.uk/git/dnsmasq-debian.git
 Vcs-Browser: https://thekelleys.org.uk/gitweb/?p=dnsmasq-debian.git
@@ -15,12 +23,13 @@ Standards-Version: 4.7.3
 Package: dnsmasq
 Architecture: all
 Multi-Arch: foreign
-Pre-Depends: ${misc:Pre-Depends}
-Depends: netbase, dnsmasq-base,
-         ${misc:Depends}
-Suggests: resolvconf
-Breaks: ${runit:Breaks}
-Conflicts: ${runit:Conflicts}
+Pre-Depends: ${misc:Pre-Depends},
+Depends: dnsmasq-base,
+         netbase,
+         ${misc:Depends},
+Suggests: resolvconf,
+Breaks: ${runit:Breaks},
+Conflicts: ${runit:Conflicts},
 Description: Small caching DNS proxy and DHCP/TFTP server - system daemon
  Dnsmasq is a lightweight, easy to configure, DNS forwarder and DHCP
  server. It is designed to provide DNS and optionally, DHCP, to a
@@ -34,10 +43,11 @@ Description: Small caching DNS proxy and DHCP/TFTP server - system daemon
 Package: dnsmasq-base
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Recommends: dns-root-data
-Provides: dnsmasq-base
-Conflicts: dnsmasq-base-lua
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: dns-root-data,
+Provides: dnsmasq-base,
+Conflicts: dnsmasq-base-lua,
 Description: Small caching DNS proxy and DHCP/TFTP server - executable
  This package contains the dnsmasq executable and documentation, but
  not the infrastructure required to run it as a system daemon. For
@@ -46,10 +56,11 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable
 Package: dnsmasq-base-lua
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Recommends: dns-root-data
-Provides: dnsmasq-base
-Conflicts: dnsmasq-base
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: dns-root-data,
+Provides: dnsmasq-base,
+Conflicts: dnsmasq-base,
 Description: Small caching DNS proxy and DHCP/TFTP server - executable, Lua-enabled
  This package contains the dnsmasq executable and documentation, but
  not the infrastructure required to run it as a system daemon. For
@@ -59,7 +70,8 @@ Description: Small caching DNS proxy and DHCP/TFTP server - executable, Lua-enab
 Package: dnsmasq-utils
 Architecture: linux-any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
 Description: Utilities for manipulating DHCP leases
  Small utilities to query a DHCP server's lease database and
  remove leases from it. These programs are distributed with dnsmasq

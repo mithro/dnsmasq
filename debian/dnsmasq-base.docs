@@ -1,7 +1,7 @@
+CHANGELOG.archive
+FAQ
+dbus/DBus-interface
+debian/readme
+debian/systemd_howto
 doc.html
 setup.html
-FAQ
-CHANGELOG.archive
-dbus/DBus-interface
-debian/systemd_howto
-debian/readme
