@@ -1,3 +1,9 @@
+dnsmasq (2.92-1+exp1) unstable; urgency=medium
+
+  * d/t/functions: Add delays and code to debug CI failures.
+
+ -- Sven Geuer <sge@debian.org>  Mon, 23 Feb 2026 17:27:55 +0100
+
 dnsmasq (2.92-1) unstable; urgency=medium
 
   * d/t/functions:
