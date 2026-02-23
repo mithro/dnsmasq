@@ -1,3 +1,28 @@
+dnsmasq (2.92-2) unstable; urgency=medium
+
+  * d/dnsmasq-base.postrm: Drop deleting dnsmasq user.
+  * d/dnsmasq-base*.post*: Stop managing directory in /run.
+    - dnsmasq-base.postrm: Removed
+    - dnsmasq-base-lua.postrm: Removed
+    - dnsmasq-base.postinst: Updated
+  * Configure dnsmasq user per sysusers.d config file.
+    - d/dnsmasq-base*.sysuser: Add these files.
+    - dnsmasq-base*.postinst: Drop these files.
+    - d/control: Update Build-Depends and Depends fields.
+  * Thanks to Luca Boccassi for providing patches to the three issues above
+    (Closes: #1128117).
+  * d/dnsmasq*.install: Remove leading '/' from target paths.
+  * d/control:
+    - Drop kfreebsd-related Build-Dependency.
+      kfreebsd-any is not recognized as valid architecture anymore.
+    - Drop 'Priority: optional'.
+    - Drop unnecessary greater-than versioned build-dependencies.
+    - Drop unnecessary older-than versioned dependencies.
+  * d/u/metadate: Drop Contact field, cme reports it as being deprecated.
+  * Apply 'wrap-and-sort -at', excluding d/dnsmasq-base-lua.maintscript.
+
+ -- Sven Geuer <sge@debian.org>  Mon, 23 Feb 2026 18:03:31 +0100
+
 dnsmasq (2.92-1+exp1) unstable; urgency=medium
 
   * d/t/functions: Add delays and code to debug CI failures.
