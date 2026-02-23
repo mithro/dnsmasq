@@ -50,18 +50,14 @@ configure_and_start_networking () {
 	# isc-dhcp-client and Debian might also use it in future.
 	# See bug #1089585 for details.
 	cat ${FUNCTIONS_DIR}/add-to.dhcpcd.conf >> /etc/dhcpcd.conf
-	systemctl start networking.service
-	# Give CI time to complete service startup
-	sleep 5
+	systemctl start networking.service || journalctl -eu networking.service
 }
 
 configure_and_start_bind () {
 	cp ${FUNCTIONS_DIR}/db.autopkg.test /etc/bind/
 	cat ${FUNCTIONS_DIR}/add-to.named.conf.local >> /etc/bind/named.conf.local
 	cp ${FUNCTIONS_DIR}/named.conf.options /etc/bind/named.conf.options
-	systemctl start named.service
-	# Give CI time to complete service startup
-	sleep 5
+	systemctl start named.service || journalctl -eu named.service
 }
 
 configure_and_start_dnsmasq () {
@@ -102,10 +98,8 @@ configure_and_start_dnsmasq () {
 		SYSTEMCTL_SKIP_REDIRECT=1 /etc/init.d/dnsmasq start "${sysv_param2}"
 	else
 		systemctl enable "${service}"
-		systemctl start "${service}"
+		systemctl start "${service}" || journalctl -eu "${service}"
 	fi
-	# Give CI time to complete service startup
-	sleep 5
 }
 
 check_compile_time_options () {
@@ -133,11 +127,15 @@ query_test_zone_records_and_check_the_result () {
 		fi
 	done
 	echo ~~~ Query some test zone records and check the result...
-	ip netns exec clientnet dig +short SOA autopkg.test >dig.out 2>&1
-	ip netns exec clientnet dig +short NS autopkg.test >>dig.out 2>&1
-	ip netns exec clientnet dig +short A ns.autopkg.test >>dig.out 2>&1
-	ip netns exec clientnet dig +short A dhcp3.autopkg.test >>dig.out 2>&1
+	ip netns exec clientnet dig +short SOA autopkg.test >dig.out 2>&1 || true
+	ip netns exec clientnet dig +short NS autopkg.test >>dig.out 2>&1 || true
+	ip netns exec clientnet dig +short A ns.autopkg.test >>dig.out 2>&1 || true
+	ip netns exec clientnet dig +short A dhcp3.autopkg.test >>dig.out 2>&1 || true
 	cat dig.out
+	echo ~~~ cat /etc/resolv.conf ~~~~
+	cat /etc/resolv.conf
+	echo ~~~ cat /etc/dhcpcd.conf ~~~
+	cat /etc/dhcpcd.conf
 	if [ `linecount dig.out` -ne `linecount ${FUNCTIONS_DIR}/dig.patterns` ] ; then
 		error_exit 'empty or unexpected output'
 	fi
