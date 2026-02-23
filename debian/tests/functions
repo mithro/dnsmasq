@@ -51,6 +51,8 @@ configure_and_start_networking () {
 	# See bug #1089585 for details.
 	cat ${FUNCTIONS_DIR}/add-to.dhcpcd.conf >> /etc/dhcpcd.conf
 	systemctl start networking.service
+	# Give CI time to complete service startup
+	sleep 5
 }
 
 configure_and_start_bind () {
@@ -58,6 +60,8 @@ configure_and_start_bind () {
 	cat ${FUNCTIONS_DIR}/add-to.named.conf.local >> /etc/bind/named.conf.local
 	cp ${FUNCTIONS_DIR}/named.conf.options /etc/bind/named.conf.options
 	systemctl start named.service
+	# Give CI time to complete service startup
+	sleep 5
 }
 
 configure_and_start_dnsmasq () {
@@ -100,6 +104,8 @@ configure_and_start_dnsmasq () {
 		systemctl enable "${service}"
 		systemctl start "${service}"
 	fi
+	# Give CI time to complete service startup
+	sleep 5
 }
 
 check_compile_time_options () {
@@ -119,6 +125,13 @@ get_address_on_veth1_and_check_the_result () {
 }
 
 query_test_zone_records_and_check_the_result () {
+	echo ~~~ Run bind pre-check...
+	for i in 1 2 3 4 5; do
+		echo "$i: dig @192.168.141.1 +short SOA autopkg.test 2>&1"
+		if dig @192.168.141.1 +short SOA autopkg.test 2>&1; then
+			break;
+		fi
+	done
 	echo ~~~ Query some test zone records and check the result...
 	ip netns exec clientnet dig +short SOA autopkg.test >dig.out 2>&1
 	ip netns exec clientnet dig +short NS autopkg.test >>dig.out 2>&1
