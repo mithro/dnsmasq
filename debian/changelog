@@ -1,3 +1,11 @@
+dnsmasq (2.92-3) unstable; urgency=medium
+
+  * d/t/functions:
+    - Drop delays and rework code to debug CI failures.
+    - Update DNS related tests to deal with dhcpcd specifics.
+
+ -- Sven Geuer <sge@debian.org>  Tue, 24 Feb 2026 15:53:14 +0100
+
 dnsmasq (2.92-2) unstable; urgency=medium
 
   * d/dnsmasq-base.postrm: Drop deleting dnsmasq user.
