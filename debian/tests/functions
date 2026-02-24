@@ -116,26 +116,29 @@ get_address_on_veth1_and_check_the_result () {
 	ip netns exec clientnet ip addr show dev veth1 >ip-addr.out 2>&1
 	cat ip-addr.out
 	match_or_exit ip-addr.out ${FUNCTIONS_DIR}/ip-addr.patterns
+	echo ~~~ Check /etc/resolv.conf...
+	cat /etc/resolv.conf
+	if ! grep -q '^nameserver 192.168.142.1$' /etc/resolv.conf; then
+		echo Missing nameserver 192.168.142.1 from /etc/resolv.conf
+		exit 1
+	fi 
 }
 
 query_test_zone_records_and_check_the_result () {
-	echo ~~~ Run bind pre-check...
-	for i in 1 2 3 4 5; do
-		echo "$i: dig @192.168.141.1 +short SOA autopkg.test 2>&1"
-		if dig @192.168.141.1 +short SOA autopkg.test 2>&1; then
-			break;
-		fi
-	done
 	echo ~~~ Query some test zone records and check the result...
-	ip netns exec clientnet dig +short SOA autopkg.test >dig.out 2>&1 || true
-	ip netns exec clientnet dig +short NS autopkg.test >>dig.out 2>&1 || true
-	ip netns exec clientnet dig +short A ns.autopkg.test >>dig.out 2>&1 || true
-	ip netns exec clientnet dig +short A dhcp3.autopkg.test >>dig.out 2>&1 || true
+	# Make sure dig sees no other nameserver than 192.168.142.1
+	sed -i -Ee 's/^/#/;s/^#(nameserver 192.168.142.1)/\1/' /etc/resolv.conf
+	ip netns exec clientnet \
+		dig +short SOA autopkg.test >dig.out 2>&1 || true
+	ip netns exec clientnet \
+		dig +short NS autopkg.test >>dig.out 2>&1 || true
+	ip netns exec clientnet \
+		dig +short A ns.autopkg.test >>dig.out 2>&1 || true
+	ip netns exec clientnet \
+		dig +short A dhcp3.autopkg.test >>dig.out 2>&1 || true
+	# Restore /etc/resolv.conf
+	sed -i -e 's/^#//' /etc/resolv.conf
 	cat dig.out
-	echo ~~~ cat /etc/resolv.conf ~~~~
-	cat /etc/resolv.conf
-	echo ~~~ cat /etc/dhcpcd.conf ~~~
-	cat /etc/dhcpcd.conf
 	if [ `linecount dig.out` -ne `linecount ${FUNCTIONS_DIR}/dig.patterns` ] ; then
 		error_exit 'empty or unexpected output'
 	fi
