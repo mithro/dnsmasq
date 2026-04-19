@@ -1,3 +1,9 @@
+dnsmasq (2.92-4) unstable; urgency=medium
+
+  * d/p/*: CVE-2026-6507: Add patch CVE-2026-6507.patch (Closes: #1134264).
+
+ -- Sven Geuer <sge@debian.org>  Sun, 19 Apr 2026 10:19:39 +0200
+
 dnsmasq (2.92-3) unstable; urgency=medium
 
   * d/t/functions:
