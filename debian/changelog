@@ -1,3 +1,16 @@
+dnsmasq (2.91-1+deb13u1) trixie-security; urgency=high
+
+  * d/p/*:
+    - CVE-2026-2291.patch: Fix buffer overflow in struct bigname.
+    - CVE-2026-4890.patch: Fix NSEC bitmap parsing infinite loop.
+    - CVE-2026-4891.patch: Verify rdlen field in RRSIG packets.
+    - CVE-2026-4892.patch: Fix buffer overflow in helper.c with large CLIDs.
+    - CVE-2026-4893.patch: Fix broken client subnet validation.
+    - CVE-2026-5172.patch: Fix buffer overflow vulnerability in
+      extract_addresses().
+
+ -- Sven Geuer <sge@debian.org>  Sat, 02 May 2026 18:50:46 +0200
+
 dnsmasq (2.91-1) unstable; urgency=medium
 
   * New upstream version 2.91
