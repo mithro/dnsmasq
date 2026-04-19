@@ -2,3 +2,4 @@ eliminate-privacy-breaches.patch
 trailing-white-space.patch
 CVE-2026-2291.patch
 CVE-2026-4890.patch
+CVE-2026-4891.patch
