@@ -2,7 +2,7 @@ Description: Streaming AXFR for large zones (>64KB), RFC 5936
  The stock single-64KB-buffer AXFR fails for zones larger than one DNS message.
  This streams the zone as multiple TCP messages (flush at 60KB, SOA bracketed),
  letting dnsmasq serve large authoritative zones (e.g. welland.mithis.com, ~93KB)
- to secondary nameservers.
+ to secondary nameservers. Purely additive over upstream (no unrelated reversions).
 Author: Tim 'mithro' Ansell <me@mith.ro>
 Origin: https://github.com/mithro/dnsmasq (branch mithro/axfr-streaming)
 Forwarded: https://github.com/mithro/dnsmasq
@@ -446,123 +446,23 @@ index 94c281c..9ea044b 100644
 +
  #endif  
 diff --git a/src/dnsmasq.h b/src/dnsmasq.h
-index 88171f9..d91de7d 100644
+index 88171f9..9775f8e 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -556,7 +556,6 @@ struct crec {
- #define PIPE_OP_STATS   3  /* Update parent's stats */
- #define PIPE_OP_IPSET   4  /* Update IPset */
- #define PIPE_OP_NFTSET  5  /* Update NFTset */
--#define PIPE_OP_KILLED  6  /* child killed by SIGALARM */
- 
- /* struct sockaddr is not large enough to hold any address,
-    and specifically not big enough to hold an IPv6 address.
-@@ -768,9 +767,10 @@ struct dyndir {
- #define STAT_NEED_DS            0x40000
- #define STAT_NEED_KEY           0x50000
- #define STAT_TRUNCATED          0x60000
--#define STAT_OK                 0x70000
--#define STAT_ABANDONED          0x80000
--#define STAT_ASYNC              0x90000
-+#define STAT_SECURE_WILDCARD    0x70000
-+#define STAT_OK                 0x80000
-+#define STAT_ABANDONED          0x90000
-+#define STAT_ASYNC              0xa0000
- 
- #define DNSSEC_FAIL_NYV         0x0001 /* key not yet valid */
- #define DNSSEC_FAIL_EXP         0x0002 /* key expired */
-@@ -784,7 +784,6 @@ struct dyndir {
- #define DNSSEC_FAIL_NSEC3_ITERS 0x0200 /* too many iterations in NSEC3 */
- #define DNSSEC_FAIL_BADPACKET   0x0400 /* bad packet */
- #define DNSSEC_FAIL_WORK        0x0800 /* too much crypto */
--#define DNSSEC_FAIL_UPSTREAM    0x1000 /* SERVFAIL from UPSTREAM */
- 
- #define STAT_ISEQUAL(a, b)  (((a) & 0xffff0000) == (b))
- 
-@@ -1281,9 +1280,6 @@ extern struct daemon {
-   int dnssec_no_time_check;
-   int back_to_the_future;
-   int limit[LIMIT_MAX];
--  struct frec *forward_to_tcp;
--  struct dns_header *header_to_tcp;
--  ssize_t plen_to_tcp;
- #endif
-   struct frec *frec_list;
-   struct frec_src *free_frec_src;
-@@ -1462,8 +1458,10 @@ int private_net6(struct in6_addr *a, int ban_localhost);
- 
- /* auth.c */
+@@ -1464,6 +1464,8 @@ int private_net6(struct in6_addr *a, int ban_localhost);
  #ifdef HAVE_AUTH
--size_t answer_auth(struct dns_header *header, char *limit, size_t qlen, 
-+size_t answer_auth(struct dns_header *header, char *limit, size_t qlen,
+ size_t answer_auth(struct dns_header *header, char *limit, size_t qlen, 
  		   time_t now, union mysockaddr *peer_addr, int local_query);
 +int answer_auth_axfr(int fd, struct dns_header *header, size_t qlen,
 +		     time_t now, union mysockaddr *peer_addr);
  int in_zone(struct auth_zone *zone, char *name, char **cut);
  #endif
  
-@@ -1476,7 +1474,7 @@ int dnssec_validate_ds(time_t now, struct dns_header *header, size_t plen, char
- 		       char *keyname, int class, int *validate_count);
- int cache_neg_ds(char *name, int flags, int class, time_t now, int neg_ttl);
- int dnssec_validate_reply(time_t now, struct dns_header *header, size_t plen, char *name, char *keyname, int *class,
--			  int check_unsigned, int *neganswer, int *prim_ok, int *nons, int *nsec_ttl, int *validate_count);
-+			  int check_unsigned, int *neganswer, int *nons, int *nsec_ttl, int *validate_count);
- int dnskey_keytag(int alg, int flags, unsigned char *key, int keylen);
- size_t filter_rrsigs(struct dns_header *header, size_t plen);
- int setup_timestamp(void);
 diff --git a/src/forward.c b/src/forward.c
-index acaaafc..8b81562 100644
+index acaaafc..9c354aa 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -978,7 +978,7 @@ static void dnssec_validate(struct frec *forward, struct dns_header *header,
- 	    status = dnssec_validate_ds(now, header, plen, daemon->namebuff, daemon->keyname, forward->class, &orig->validate_counter);
- 	  else
- 	    status = dnssec_validate_reply(now, header, plen, daemon->namebuff, daemon->keyname, &forward->class, 
--					   !option_bool(OPT_DNSSEC_IGN_NS), NULL, NULL, NULL, NULL, &orig->validate_counter);
-+					   !option_bool(OPT_DNSSEC_IGN_NS), NULL, NULL, NULL, &orig->validate_counter);
- 	  
- 	  if (STAT_ISEQUAL(status, STAT_ABANDONED))
- 	    log_resource = 1;
-@@ -1430,9 +1430,6 @@ void return_reply(time_t now, struct frec *forward, struct dns_header *header, s
-       
- 	  a.log.ede = ede;
- 	  log_query(F_SECSTAT, domain, &a, result, 0);
--
--	  if (ede == EDE_US_SERVFAIL)
--	    ede = EDE_DNSSEC_BOGUS;
- 	}
-     }
-   
-@@ -2265,7 +2262,7 @@ int tcp_from_udp(time_t now, int status, struct dns_header *header, ssize_t *ple
- 	      
- 	      if (n >= daemon->edns_pktsz)
- 		{
--		  /* still too big, strip optional sections and try again. */
-+		  /* still too bIg, strip optional sections and try again. */
- 		  new_header->nscount = htons(0);
- 		  new_header->arcount = htons(0);
- 		  n = resize_packet(new_header, n, NULL, 0);
-@@ -2279,10 +2276,6 @@ int tcp_from_udp(time_t now, int status, struct dns_header *header, ssize_t *ple
- 		    }
- 		}
- 	      
--	      /* we have succeeded and are no longer blocked talking
--		 on a TCP connection, so if the watchdog alarm goes off,
--		 ignore it. */
--	      daemon->forward_to_tcp = NULL;
- 	      /* return the stripped or truncated reply. */
- 	      memcpy(header, new_header, n);
- 	      *plenp = n;
-@@ -2319,7 +2312,7 @@ static int tcp_key_recurse(time_t now, int status, struct dns_header *header, si
- 	new_status = dnssec_validate_ds(now, header, n, name, keyname, class, validatecount);
-       else
- 	new_status = dnssec_validate_reply(now, header, n, name, keyname, &class,
--					   !option_bool(OPT_DNSSEC_IGN_NS), NULL, NULL, NULL, NULL, validatecount);
-+					   !option_bool(OPT_DNSSEC_IGN_NS), NULL, NULL, NULL, validatecount);
-       
-       if (!STAT_ISEQUAL(new_status, STAT_NEED_DS) && !STAT_ISEQUAL(new_status, STAT_NEED_KEY) && !STAT_ISEQUAL(new_status, STAT_ABANDONED))
- 	break;
-@@ -2593,7 +2586,16 @@ void tcp_request(int confd, time_t now, struct iovec *bigbuff,
+@@ -2593,7 +2593,16 @@ void tcp_request(int confd, time_t now, struct iovec *bigbuff,
  #endif
  #ifdef HAVE_AUTH
  	      else if (auth_dns)
@@ -580,12 +480,3 @@ index acaaafc..8b81562 100644
  #endif
  	      else
  		m = answer_request(out_header, ((char *) out_header) + 65536, (size_t)size, 
-@@ -2704,8 +2706,6 @@ void tcp_request(int confd, time_t now, struct iovec *bigbuff,
- 			      
- 			      a.log.ede = ede;
- 			      log_query(F_SECSTAT, domain, &a, result, 0);
--			      if (ede == EDE_US_SERVFAIL)
--				ede = EDE_DNSSEC_BOGUS;
- 			      
- 			      if ((daemon->limit[LIMIT_CRYPTO] - validatecount) > (int)daemon->metrics[METRIC_CRYPTO_HWM])
- 				daemon->metrics[METRIC_CRYPTO_HWM] = daemon->limit[LIMIT_CRYPTO] - validatecount;
