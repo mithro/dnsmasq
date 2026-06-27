@@ -1,0 +1,147 @@
+name: Build deb + publish apt repo
+
+# Builds the welland dnsmasq deb (stock dnsmasq + streaming-AXFR patch) from this
+# build branch: pristine upstream source (master) + the dnsmasq-debian/mithro/welland
+# packaging delivered via the self-referencing submodule. dnsmasq-base is
+# Architecture: any, so this MUST build on arm64 to install on ten64 (Ten64 router).
+
+on:
+  push:
+    branches: [mithro/welland]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-deb:
+    # arm64 runner (free for public repos) -> arm64 debs for ten64
+    runs-on: ubuntu-24.04-arm
+    container: debian:trixie
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential ca-certificates git dpkg-dev debhelper quilt \
+            dh-exec gettext dh-runit pkgconf \
+            libnetfilter-conntrack-dev libidn2-dev libdbus-1-dev libgmp-dev \
+            nettle-dev liblua5.4-dev libnftables-dev
+
+      - uses: actions/checkout@v4
+        with:
+          ref: mithro/welland
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Trust repo directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Show what we are building
+        run: |
+          echo "source HEAD: $(git rev-parse --short HEAD)"
+          echo "packaging:   $(readlink debian) -> $(git -C submodules/dnsmasq-debian rev-parse --short HEAD)"
+          echo "version:     $(dpkg-parsechangelog -S Version)"
+          cat debian/patches/series
+
+      - name: Build package (binary-only, arm64)
+        run: dpkg-buildpackage -b -us -uc
+
+      - name: Collect debs
+        run: |
+          mkdir -p built-debs
+          cp ../*.deb built-debs/
+          ls -l built-debs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: built-debs/
+
+  publish-apt:
+    needs: build-deb
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: debs
+          path: apt-repo/
+
+      - name: Generate apt repo metadata
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends dpkg-dev apt-utils
+          cd apt-repo
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k Packages
+
+          cat > Release <<EOF
+          Origin: mithro-dnsmasq
+          Label: mithro-dnsmasq
+          Suite: stable
+          Codename: trixie
+          Architectures: arm64 all
+          Components: main
+          Description: dnsmasq + welland patches (streaming AXFR for large zones)
+          EOF
+
+          apt-ftparchive release . >> Release
+
+      - name: Sign repo
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        if: env.GPG_PRIVATE_KEY != ''
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          cd apt-repo
+          gpg --batch --yes --armor --detach-sign --output Release.gpg Release
+          gpg --batch --yes --armor --clearsign --output InRelease Release
+          gpg --batch --yes --armor --export > dnsmasq.gpg
+
+      - name: Create index page
+        run: |
+          cat > apt-repo/index.html <<'HTMLEOF'
+          <!DOCTYPE html>
+          <html>
+          <head><title>mithro dnsmasq apt repository</title></head>
+          <body>
+          <h1>mithro dnsmasq apt repository</h1>
+          <p>Debian packages of <b>dnsmasq</b> with the welland patch set on top of
+          upstream master: <b>streaming AXFR</b> (RFC 5936) so dnsmasq can serve
+          authoritative zones larger than 64KB to secondary nameservers. Built from
+          <a href="https://github.com/mithro/dnsmasq">github.com/mithro/dnsmasq</a>
+          (branch <code>mithro/welland</code>), packaged from Debian's dnsmasq
+          packaging (branch <code>dnsmasq-debian/mithro/welland</code>). arm64.</p>
+          <h2>Setup</h2>
+          <pre>
+          # Download signing key
+          curl -fsSL https://mithro.github.io/dnsmasq/dnsmasq.gpg \
+            | sudo tee /etc/apt/keyrings/mithro-dnsmasq.gpg > /dev/null
+
+          # Add apt source
+          echo "deb [signed-by=/etc/apt/keyrings/mithro-dnsmasq.gpg] https://mithro.github.io/dnsmasq/ ./" \
+            | sudo tee /etc/apt/sources.list.d/mithro-dnsmasq.list
+
+          # Install
+          sudo apt update
+          sudo apt install dnsmasq-base
+          </pre>
+          </body>
+          </html>
+          HTMLEOF
+          sed -i 's/^          //' apt-repo/index.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apt-repo/
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
