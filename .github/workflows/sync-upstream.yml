@@ -1,4 +1,10 @@
-name: Sync with Upstream dnsmasq
+name: Sync Upstreams (dnsmasq + dnsmasq-debian)
+
+# Mirrors the upstream projects this monorepo tracks into branch namespaces:
+#   dnsmasq source (thekelleys)        -> bare branch names (master, aws, ...)
+#   dnsmasq-debian packaging upstreams -> dnsmasq-debian/<source>/<branch>
+# Our own work is never clobbered: source patches live in <owner>/* (mithro/*)
+# and our packaging lives in dnsmasq-debian/mithro/*, both excluded below.
 
 on:
   schedule:
@@ -6,6 +12,9 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
     # Allow manual triggering
+
+permissions:
+  contents: write
 
 jobs:
   sync:
@@ -22,37 +31,46 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
 
-      - name: Add upstream remote
-        run: |
-          git remote add upstream git://thekelleys.org.uk/dnsmasq.git || true
-
-      - name: Fetch all branches and tags from upstream
-        run: |
-          git fetch upstream --tags --prune '+refs/heads/*:refs/remotes/upstream/*'
-
-      - name: Sync all upstream branches to origin
+      - name: Sync upstream dnsmasq source (bare branch names)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          # Get all upstream branches (excluding github-actions and $REPO_OWNER/* which are ours)
-          for branch in $(git branch -r | grep 'upstream/' | grep -v HEAD | sed 's|.*upstream/||' | grep -v '^github-actions$' | grep -v "^${REPO_OWNER}/"); do
-            echo "Syncing branch: $branch"
-
-            # Create or update local branch from upstream
-            git checkout -B "$branch" "upstream/$branch"
-
-            # Push to origin (force to handle rebases upstream)
-            git push origin "$branch" --force
+          git remote add src git://thekelleys.org.uk/dnsmasq.git \
+            || git remote set-url src git://thekelleys.org.uk/dnsmasq.git
+          git fetch src --tags --prune '+refs/heads/*:refs/remotes/src/*'
+          # Mirror every upstream source branch under its bare name, except our
+          # own namespaces (mithro/*, dnsmasq-debian/*) and the CI branch.
+          for branch in $(git branch -r | sed -n 's|^[[:space:]]*src/||p' \
+                            | grep -v '^HEAD' \
+                            | grep -v '^github-actions$' \
+                            | grep -v "^${REPO_OWNER}/" \
+                            | grep -v '^dnsmasq-debian/'); do
+            echo "source: $branch"
+            git push origin "+refs/remotes/src/$branch:refs/heads/$branch" \
+              || echo "WARN: failed to push source branch $branch"
           done
+          git push origin --tags --force || echo "WARN: tag push had failures"
+          git remote remove src
 
-      - name: Sync all tags to origin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Mirror dnsmasq-debian packaging upstreams under dnsmasq-debian/<source>/*
         run: |
-          # Push all tags to origin
-          git push origin --tags --force
-
-      - name: Return to github-actions branch
-        run: |
-          git checkout github-actions
+          # mirror <git-url> <branch-namespace-prefix>
+          mirror() {
+            url="$1"; prefix="$2"
+            echo "== mirroring $url -> $prefix/* =="
+            git remote add mir "$url" || git remote set-url mir "$url"
+            git fetch mir --prune '+refs/heads/*:refs/remotes/mir/*' \
+              || { echo "WARN: fetch failed for $url"; git remote remove mir; return; }
+            for branch in $(git branch -r | sed -n 's|^[[:space:]]*mir/||p' | grep -v '^HEAD'); do
+              echo "  $prefix/$branch"
+              git push origin "+refs/remotes/mir/$branch:refs/heads/$prefix/$branch" \
+                || echo "WARN: failed to push $prefix/$branch"
+            done
+            git remote remove mir
+          }
+          # thekelleys' own packaging (Simon Kelley)
+          mirror git://thekelleys.org.uk/dnsmasq-debian.git  dnsmasq-debian/kelley
+          # Debian maintainer git (salsa)
+          mirror https://salsa.debian.org/debian/dnsmasq.git  dnsmasq-debian/debian/salsa
+          # Debian archive state (dgit) — authoritative for what's actually shipped
+          mirror https://git.dgit.debian.org/dnsmasq           dnsmasq-debian/debian/dgit
