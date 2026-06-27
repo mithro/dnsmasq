@@ -1464,6 +1464,8 @@ int private_net6(struct in6_addr *a, int ban_localhost);
 #ifdef HAVE_AUTH
 size_t answer_auth(struct dns_header *header, char *limit, size_t qlen, 
 		   time_t now, union mysockaddr *peer_addr, int local_query);
+int answer_auth_axfr(int fd, struct dns_header *header, size_t qlen,
+		     time_t now, union mysockaddr *peer_addr);
 int in_zone(struct auth_zone *zone, char *name, char **cut);
 #endif
 
