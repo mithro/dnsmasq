@@ -2593,7 +2593,16 @@ void tcp_request(int confd, time_t now, struct iovec *bigbuff,
 #endif
 #ifdef HAVE_AUTH
 	      else if (auth_dns)
-		m = answer_auth(out_header, ((char *) out_header) + 65536, (size_t)size, now, &peer_addr, local_auth);
+		{
+		  /* Use streaming AXFR for zone transfers to handle large zones */
+		  if (qtype == T_AXFR)
+		    {
+		      if (answer_auth_axfr(confd, header, (size_t)size, now, &peer_addr))
+			continue; /* AXFR complete, handle next query */
+		      /* Fall through to regular answer_auth for error response */
+		    }
+		  m = answer_auth(out_header, ((char *) out_header) + 65536, (size_t)size, now, &peer_addr, local_auth);
+		}
 #endif
 	      else
 		m = answer_request(out_header, ((char *) out_header) + 65536, (size_t)size, 
