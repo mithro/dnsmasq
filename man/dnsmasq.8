@@ -174,12 +174,18 @@ Specify an alternate path for dnsmasq to record its process-id in. Normally /var
 .B \-u, --user=<username>
 Specify the userid to which dnsmasq will change after startup. Dnsmasq must normally be started as root, but it will drop root 
 privileges after startup by changing id to another user. Normally this user is "nobody" but that 
-can be over-ridden with this switch.
+can be over-ridden with this switch. 
 .TP
 .B \-g, --group=<groupname> 
 Specify the group which dnsmasq will run
 as. The default is "dip", if available, to facilitate access to
-/etc/ppp/resolv.conf which is not normally world readable.
+/etc/ppp/resolv.conf which is not normally world readable. If "dip" is not available, the default becomes
+the main group associated with the uid specified by
+.B --user
+, or "nobody".
+Specifying
+.B --group
+without an argument inhibits any change to the gid of the process, even to the defaults.
 .TP
 .B \-v, --version
 Print the version number.
