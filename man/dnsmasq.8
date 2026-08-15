@@ -1921,7 +1921,12 @@ DNSMASQ_CLIENT_ID if the host provided a client-id.
 
 DNSMASQ_CIRCUIT_ID, DNSMASQ_SUBSCRIBER_ID, DNSMASQ_REMOTE_ID if a
 DHCP relay-agent added any of these options.
- 
+
+DNSMASQ_CPEWAN_OUI, DNSMASQ_CPEWAN_SERIAL, DNSMASQ_CPEWAN_CLASS from
+an RFC3925 Vendor-Identifying Vendor-Specific Information Option
+containing the Broadband Forum enterprise number and options
+defined in TR-069.
+
 If the client provides vendor-class, DNSMASQ_VENDOR_CLASS.
 
 For IPv6 only:
@@ -1944,7 +1949,17 @@ only  supplied for
 since these data are not held in dnsmasq's lease
 database.
 
-
+Please note that the environment options DNSMASQ_USER_CLASS0..DNSMASQ_USER_CLASSn, 
+DNSMASQ_VENDOR_CLASS0..DNSMASQ_VENDOR_CLASSn,
+DNSMASQ_VENDOR_CLASS,
+DNSMASQ_CIRCUIT_ID, DNSMASQ_SUBSCRIBER_ID, DNSMASQ_REMOTE_ID,
+DNSMASQ_CPEWAN_OUI, DNSMASQ_CPEWAN_SERIAL, DNSMASQ_CPEWAN_CLASS,
+DNSMASQ_MUD_URL all contain values which are derived directly from untrusted data recieved
+from clients. Be very careful with quoting when using these values, lest an attacker sends
+a vendor class of "rm -rf /". Note also that the RFCs defining these options tend to simply
+define them an opaque data: the implication but not the letter of the definition is
+printable strings. In practise, dnsmasq passes all octets except zero, which is treated
+as a terminator.
 
 All file descriptors are
 closed except stdin, which is open to /dev/null, and stdout and stderr which capture output for logging by dnsmasq. 
