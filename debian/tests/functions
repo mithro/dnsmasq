@@ -110,10 +110,10 @@ check_compile_time_options () {
 	match_or_exit options.msg ${FUNCTIONS_DIR}/options${1}.patterns
 }
 
-get_address_on_veth1_and_check_the_result () {
-	echo ~~~ Get an address on veth1 and check the result...
-	ip netns exec clientnet ifup veth1
-	ip netns exec clientnet ip addr show dev veth1 >ip-addr.out 2>&1
+get_address_on_client0_and_check_the_result () {
+	echo ~~~ Get an address on client0 and check the result...
+	ifup client0
+	ip addr show dev client0 >ip-addr.out 2>&1
 	cat ip-addr.out
 	match_or_exit ip-addr.out ${FUNCTIONS_DIR}/ip-addr.patterns
 	echo ~~~ Check /etc/resolv.conf...
@@ -125,17 +125,16 @@ get_address_on_veth1_and_check_the_result () {
 }
 
 query_test_zone_records_and_check_the_result () {
+	local client0_ip=$(ip -br addr show dev client0 | grep -oP '([0-9]+\.){3}[0-9]+')
 	echo ~~~ Query some test zone records and check the result...
 	# Make sure dig sees no other nameserver than 192.168.142.1
 	sed -i -Ee 's/^/#/;s/^#(nameserver 192.168.142.1)/\1/' /etc/resolv.conf
-	ip netns exec clientnet \
-		dig +short SOA autopkg.test >dig.out 2>&1 || true
-	ip netns exec clientnet \
-		dig +short NS autopkg.test >>dig.out 2>&1 || true
-	ip netns exec clientnet \
-		dig +short A ns.autopkg.test >>dig.out 2>&1 || true
-	ip netns exec clientnet \
-		dig +short A dhcp3.autopkg.test >>dig.out 2>&1 || true
+	set -x
+	dig -b $client0_ip +short SOA autopkg.test >dig.out 2>&1 || true
+	dig -b $client0_ip +short NS autopkg.test >>dig.out 2>&1 || true
+	dig -b $client0_ip +short A ns.autopkg.test >>dig.out 2>&1 || true
+	dig -b $client0_ip +short A dhcp3.autopkg.test >>dig.out 2>&1 || true
+	set +x
 	# Restore /etc/resolv.conf
 	sed -i -e 's/^#//' /etc/resolv.conf
 	cat dig.out
@@ -159,8 +158,8 @@ check_utils () {
 	fi
 	echo ~~~ Test dhcp_release...
 	cat $leases_file
-	if ! dhcp_release veth0 $client_ip_address 1-$client_mac_address; then
-		error_exit "'dhcp_release veth0 $client_ip_address 1-$client_mac_address' failed with return code $?"
+	if ! dhcp_release server0 $client_ip_address 1-$client_mac_address; then
+		error_exit "'dhcp_release server0 $client_ip_address 1-$client_mac_address' failed with return code $?"
 	fi
 	sleep 1
 	if [ -n "`cat $leases_file`" ]; then
