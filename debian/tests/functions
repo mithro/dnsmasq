@@ -3,21 +3,7 @@
 FUNCTIONS_DIR="debian/tests/functions.d"
 
 match_or_exit () {
-	file_to_match="$1"
-	pattern_file="$2"
-
-	while read line_to_match <&3 && read pattern_line <&4 ; do
-		if [ "${line_to_match##$pattern_line}" ]; then
-			echo '!!! MISMATCH !!!' >&2
-			echo "Line:    ${line_to_match}" >&2
-			echo "Pattern: ${pattern_line}" >&2
-			exit 1
-		fi;
-	done 3<"${file_to_match}" 4<"${pattern_file}"
-}
-
-linecount () {
-	wc -l $1 | cut -d' ' -f1
+	${FUNCTIONS_DIR}/match-line-by-line.pl $1 $2
 }
 
 error_exit () {
@@ -138,9 +124,6 @@ query_test_zone_records_and_check_the_result () {
 	# Restore /etc/resolv.conf
 	sed -i -e 's/^#//' /etc/resolv.conf
 	cat dig.out
-	if [ `linecount dig.out` -ne `linecount ${FUNCTIONS_DIR}/dig.patterns` ] ; then
-		error_exit 'empty or unexpected output'
-	fi
 	match_or_exit dig.out ${FUNCTIONS_DIR}/dig.patterns
 }
 
