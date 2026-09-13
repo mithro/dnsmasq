@@ -1,3 +1,14 @@
+dnsmasq (2.93-2) unstable; urgency=medium
+
+  * d/t/*:
+    - Rework autopkgtest so that it can run successfully under incus-lxc.
+      (Closes: #1144780)
+    - Rework pattern matching from dash-based to perl-based.
+  * d/control: Update debhelper-compat to 14. Consequently, drop all
+    ${*:Depends} and ${*:Pre-Depends} substvar mentionings.
+
+ -- Sven Geuer <sge@debian.org>  Sun, 13 Sep 2026 14:03:15 +0200
+
 dnsmasq (2.93-1) unstable; urgency=medium
 
   * New upstream version 2.93
