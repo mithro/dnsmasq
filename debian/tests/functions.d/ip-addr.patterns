@@ -1,4 +1,4 @@
-\d: client0@server0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+\d+: client0@server0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
     link/ether [\da-f]{2}(:[\da-f]{2}){5} brd ff:ff:ff:ff:ff:ff
     inet 192\.168\.142\.\d/29 brd 192\.168\.142\.7 scope global dynamic.* client0
        valid_lft 3[56]\d\dsec preferred_lft 3[0-6]\d\dsec
