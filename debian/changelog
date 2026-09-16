@@ -1,3 +1,9 @@
+dnsmasq (2.93-3) unstable; urgency=medium
+
+  * d/t/functions.d/ip-addr.patterns: Relax limits introduced by one regex.
+
+ -- Sven Geuer <sge@debian.org>  Wed, 16 Sep 2026 22:19:15 +0200
+
 dnsmasq (2.93-2) unstable; urgency=medium
 
   * d/t/*:
