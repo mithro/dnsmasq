@@ -73,8 +73,5 @@ jobs:
       suites: "trixie"
       architectures: "arm64 all"
       description: "dnsmasq + welland patches (streaming AXFR for large zones)"
-      # Transitional: the previous repository at the site root (Origin
-      # mithro-dnsmasq), frozen, until every client points at <site>/trixie/.
-      legacy-paths: "."
     secrets:
       gpg-private-key: ${{ secrets.APT_GPG_PRIVATE_KEY }}
