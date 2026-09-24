@@ -55,111 +55,26 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: debs
+          name: debs-trixie-arm64
           path: built-debs/
 
   publish-apt:
+    # Index, sign and deploy through the shared workflow: one flat repository
+    # per suite (<site>/trixie/), key dnsmasq.gpg, Origin dnsmasq -- the
+    # convention every apt repository follows (docs/conventions.md in
+    # mithro/apt-repo-action).
     needs: build-deb
-    runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: debs
-          path: apt-repo/
-
-      - name: Generate apt repo metadata
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends dpkg-dev apt-utils
-          cd apt-repo
-          dpkg-scanpackages --multiversion . > Packages
-          gzip -k Packages
-
-          cat > Release <<EOF
-          Origin: mithro-dnsmasq
-          Label: mithro-dnsmasq
-          Suite: stable
-          Codename: trixie
-          Architectures: arm64 all
-          Components: main
-          Description: dnsmasq + welland patches (streaming AXFR for large zones)
-          EOF
-
-          apt-ftparchive release . >> Release
-
-      - name: Sign repo
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
-        if: env.GPG_PRIVATE_KEY != ''
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          cd apt-repo
-          gpg --batch --yes --armor --detach-sign --output Release.gpg Release
-          gpg --batch --yes --armor --clearsign --output InRelease Release
-          # apt reads a keyring's format from its extension: .gpg must be
-          # binary, .asc armoured. An armoured .gpg is invisible on trixie
-          # (sqv reads both) but gpgv rejects it and the repo reads as
-          # unsigned. Publish both, each under the extension apt expects.
-          gpg --batch --yes --export > dnsmasq.gpg
-          gpg --batch --yes --armor --export > dnsmasq.asc
-
-      - name: Fetch the keyring checker
-        if: hashFiles('apt-repo/dnsmasq.gpg') != ''
-        uses: actions/checkout@v4
-        with:
-          repository: mithro/apt-repo-action
-          path: .apt-repo-action
-
-      - name: Verify each keyring matches the format its extension promises
-        if: hashFiles('apt-repo/dnsmasq.gpg') != ''
-        run: |
-          python3 .apt-repo-action/scripts/check-keyrings.py \
-            --binary apt-repo/dnsmasq.gpg --armored apt-repo/dnsmasq.asc
-
-      - name: Create index page
-        run: |
-          cat > apt-repo/index.html <<'HTMLEOF'
-          <!DOCTYPE html>
-          <html>
-          <head><title>mithro dnsmasq apt repository</title></head>
-          <body>
-          <h1>mithro dnsmasq apt repository</h1>
-          <p>Debian packages of <b>dnsmasq</b> with the welland patch set on top of
-          upstream master: <b>streaming AXFR</b> (RFC 5936) so dnsmasq can serve
-          authoritative zones larger than 64KB to secondary nameservers. Built from
-          <a href="https://github.com/mithro/dnsmasq">github.com/mithro/dnsmasq</a>
-          (branch <code>mithro/welland</code>), packaged from Debian's dnsmasq
-          packaging (branch <code>dnsmasq-debian/mithro/welland</code>). arm64.</p>
-          <h2>Setup</h2>
-          <pre>
-          # Download signing key
-          curl -fsSL https://mithro.github.io/dnsmasq/dnsmasq.gpg \
-            | sudo tee /etc/apt/keyrings/mithro-dnsmasq.gpg > /dev/null
-
-          # Add apt source
-          echo "deb [signed-by=/etc/apt/keyrings/mithro-dnsmasq.gpg] https://mithro.github.io/dnsmasq/ ./" \
-            | sudo tee /etc/apt/sources.list.d/mithro-dnsmasq.list
-
-          # Install
-          sudo apt update
-          sudo apt install dnsmasq-base
-          </pre>
-          </body>
-          </html>
-          HTMLEOF
-          sed -i 's/^          //' apt-repo/index.html
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: apt-repo/
-
-      - id: deploy
-        uses: actions/deploy-pages@v4
+    uses: mithro/apt-repo-action/.github/workflows/publish-apt.yml@main
+    with:
+      suites: "trixie"
+      architectures: "arm64 all"
+      description: "dnsmasq + welland patches (streaming AXFR for large zones)"
+      # Transitional: the previous repository at the site root (Origin
+      # mithro-dnsmasq), frozen, until every client points at <site>/trixie/.
+      legacy-paths: "."
+    secrets:
+      gpg-private-key: ${{ secrets.APT_GPG_PRIVATE_KEY }}
