@@ -3,7 +3,7 @@
 This GitHub repo (`github.com/mithro/dnsmasq`) is a **monorepo of mirrors**: it
 holds two upstream projects as separate branch namespaces, plus our own work and
 the CI that wires it together. It produces an arm64 `dnsmasq` deb (stock dnsmasq +
-streaming-AXFR patch) published to an apt repo at <https://mithro.github.io/dnsmasq/>.
+streaming-AXFR patch) published as a signed apt repository at <https://mith.ro/dnsmasq/> (setup on that page).
 
 ## Branch namespaces
 
