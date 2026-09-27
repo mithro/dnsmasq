@@ -1,0 +1,16 @@
+
+auto dns0
+iface dns0 inet static
+    pre-up ip link add dns0 type dummy
+    address 192.168.141.1
+    netmask 255.255.255.248
+    post-down ip link del dns0
+
+auto server0
+iface server0 inet static
+    pre-up ip link add server0 type veth peer client0
+    address 192.168.142.1
+    netmask 255.255.255.248
+    post-down ip link del server0
+
+iface client0 inet dhcp

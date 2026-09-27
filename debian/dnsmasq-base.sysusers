@@ -1,0 +1,1 @@
+u! dnsmasq -:nogroup dnsmasq /var/lib/misc
