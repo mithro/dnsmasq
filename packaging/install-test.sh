@@ -7,6 +7,7 @@
 # 2. `dnsmasq --version` runs.
 # 3. Our patch works: a zone far larger than one 64 KB DNS message transfers
 #    completely over AXFR. Stock dnsmasq fails this; see packaging/README.md.
+# 4. --dump-config (ours) prints a configuration that dnsmasq reads back.
 set -eu
 
 DEBS=${DEBS:-/debs}
@@ -74,12 +75,47 @@ axfr_test() {
     rm -rf "$dir"
 }
 
+dump_config_test() {
+    dir=$(mktemp -d)
+    cat > "$dir/in.conf" <<'CONF'
+no-resolv
+server=/example.org/10.0.0.1
+auth-server=ns.example.com
+auth-zone=example.com,10.1.0.0/24
+host-record=foo.example.com,10.1.0.5,2001:db8::5
+mx-host=example.com,mail.example.com,10
+dhcp-range=10.1.0.100,10.1.0.200,12h
+dhcp-host=aa:bb:cc:dd:ee:ff,box,10.1.0.50
+CONF
+    dnsmasq --conf-file="$dir/in.conf" --dump-config > "$dir/out.conf"
+    cat "$dir/out.conf"
+    for want in 'no-resolv' 'server=/example.org/10.0.0.1' \
+            'auth-zone=example.com,10.1.0.0/24' \
+            'host-record=foo.example.com,10.1.0.5,2001:db8::5' \
+            'mx-host=example.com,mail.example.com,10' \
+            'dhcp-range=10.1.0.100,10.1.0.200,12h' \
+            'dhcp-host=aa:bb:cc:dd:ee:ff,box,10.1.0.50'; do
+        if ! grep -qxF "$want" "$dir/out.conf"; then
+            echo "--dump-config didn't print: $want" >&2
+            exit 1
+        fi
+    done
+    if grep -q '^mx-target=' "$dir/out.conf"; then
+        echo "--dump-config printed the defaulted mx-target" >&2
+        exit 1
+    fi
+    dnsmasq --conf-file="$dir/out.conf" --test
+    rm -rf "$dir"
+}
+
 axfr_test
+dump_config_test
 
 echo "== dnsmasq-base-lua (replaces dnsmasq-base)"
 apt-get install -y --no-install-recommends "$DEBS"/dnsmasq-base-lua_*.deb
 dpkg-query -W 'dnsmasq*'
 dnsmasq --version | grep -i 'lua'
 axfr_test
+dump_config_test
 
 echo "install test passed"
