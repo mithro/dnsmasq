@@ -1,0 +1,100 @@
+name: Debian packages
+
+# Rolling release: every push to packaging builds dnsmasq (upstream master
+# + our patches, with Debian's packaging) for each suite and architecture,
+# install-tests it, and republishes the signed apt repository on GitHub
+# Pages (https://mith.ro/dnsmasq/<suite>/). A pull request runs the same
+# builds and tests and publishes nothing. Versions come from git
+# (packaging/deb-version.py, run by apt-repo-action's build-deb).
+#
+# This follows mithro/apt-repo-action's docs/packaging.md; the differences
+# from its defaults are declared in .github/apt-packaging.toml.
+on:
+  push:
+    branches: [packaging]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deb-${{ github.ref }}
+  # A newer push to a pull request cancels the older build. On the default
+  # branch a running publish is never cancelled: the newest push waits for it,
+  # and replaces any older push still waiting (it contains that one's commits).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-deb:
+    name: build-deb (${{ matrix.suite }} ${{ matrix.arch }})
+    # arm64 and armhf on the arm runner, the rest on x86 (docs/packaging.md,
+    # "Builds"); armhf and riscv64 run under QEMU, which build-deb sets up.
+    runs-on: ${{ (matrix.arch == 'arm64' || matrix.arch == 'armhf') && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [trixie, forky, sid]
+        arch: [amd64, i386, arm64, armhf, riscv64]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # full history: the version counts commits since upstream
+
+      # The shared build: debian:<suite>, build deps from debian/control, and
+      # the version from packaging/deb-version.py (Set A, with ~deb<R>, and
+      # ~pr<P> on a pull request). Writes the .debs to built-debs/.
+      - name: Build
+        id: build
+        uses: mithro/apt-repo-action/build-deb@main
+        with:
+          suite: ${{ matrix.suite }}
+          arch: ${{ matrix.arch }}
+
+      # Both flavours install into a clean container of the suite, and a zone
+      # much larger than one 64 KB message transfers whole over AXFR: the
+      # streaming-AXFR patch at work (packaging/install-test.sh).
+      - name: Install test
+        env:
+          SUITE: ${{ matrix.suite }}
+          ARCH: ${{ matrix.arch }}
+          APT_SOURCES: ${{ steps.build.outputs.apt-sources }}
+        run: |
+          case "$ARCH" in
+            amd64)   platform=linux/amd64 ;;
+            i386)    platform=linux/386 ;;
+            arm64)   platform=linux/arm64 ;;
+            armhf)   platform=linux/arm/v7 ;;
+            riscv64) platform=linux/riscv64 ;;
+          esac
+          docker run --rm --platform "$platform" \
+            -v "$APT_SOURCES:/apt-sources:ro" \
+            -v "$PWD/built-debs:/debs:ro" -v "$PWD/packaging:/packaging:ro" \
+            "debian:$SUITE" sh /packaging/install-test.sh
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-${{ matrix.suite }}-${{ matrix.arch }}
+          path: built-debs/*.deb
+          retention-days: 14
+
+  publish-apt:
+    # Build and install-test pull requests, but never publish from one (or
+    # from any branch but the default): that would overwrite the live
+    # repository with unreviewed packages.
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    needs: build-deb
+    # Scoped to this job alone: the called workflow cannot exceed it.
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: mithro/apt-repo-action/.github/workflows/publish-apt.yml@main
+    with:
+      suites: "trixie forky sid"
+      architectures: "amd64 i386 arm64 armhf riscv64 all"
+      description: "dnsmasq with streaming AXFR (zones over 64 KB), packaged for Debian"
+    secrets:
+      gpg-private-key: ${{ secrets.APT_GPG_PRIVATE_KEY }}
