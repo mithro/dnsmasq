@@ -13,11 +13,12 @@ Build-Depends: debhelper-compat (= 14),
                libnftables-dev,
                nettle-dev,
                pkgconf,
-Maintainer: Simon Kelley <simon@thekelleys.org.uk>
+Maintainer: Tim 'mithro' Ansell <me@mith.ro>
+XSBC-Original-Maintainer: Simon Kelley <simon@thekelleys.org.uk>
 Uploaders: Sven Geuer <sge@debian.org>,
 Homepage: https://www.thekelleys.org.uk/dnsmasq/doc.html
-Vcs-Git: https://thekelleys.org.uk/git/dnsmasq-debian.git
-Vcs-Browser: https://thekelleys.org.uk/gitweb/?p=dnsmasq-debian.git
+Vcs-Git: https://github.com/mithro/dnsmasq.git -b packaging
+Vcs-Browser: https://github.com/mithro/dnsmasq/tree/packaging
 Standards-Version: 4.7.4
 
 Package: dnsmasq
