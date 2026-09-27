@@ -207,6 +207,26 @@ static void dump_cache_opts(void)
 #undef CACHE_HEADER
 }
 
+/* read_opts() defaults mx-target to the host name whenever there is an
+   mx-host, so an mx-target alone doesn't mean one was configured. One
+   that was (or localmx) always leaves an MX record for the host name;
+   without one, printing the default would add that record on re-read. */
+static int mxtarget_given(void)
+{
+  struct mx_srv_record *mx;
+  char name[MAXDNAMESTR + 1];
+
+  if (gethostname(name, sizeof(name)) == -1)
+    return 1;
+  name[MAXDNAMESTR] = 0;
+
+  for (mx = daemon->mxnames; mx; mx = mx->next)
+    if (!mx->issrv && hostname_isequal(mx->name, name))
+      return 1;
+
+  return 0;
+}
+
 static void dump_string_opts(void)
 {
   int printed = 0;
@@ -245,7 +265,7 @@ static void dump_string_opts(void)
   if (daemon->dns_client_id)
     { STR_HEADER(); printf("add-cpe-id=%s\n", daemon->dns_client_id); }
 
-  if (daemon->mxtarget)
+  if (daemon->mxtarget && mxtarget_given())
     { STR_HEADER(); printf("mx-target=%s\n", daemon->mxtarget); }
 
   if (daemon->scriptuser)
