@@ -1,0 +1,32 @@
+name: Mirror upstreams
+
+# Daily: mirror every branch and tag of dnsmasq's own repository and of the
+# Debian packaging repositories (thekelleys.org.uk, salsa, dgit) into this
+# one, following them even when they rewrite history. Our branches are
+# never touched and nothing is deleted. See packaging/mirror-upstreams.py.
+# The branch the build follows, `upstream`, is sync-upstream.yml's, and it
+# only fast-forwards.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # daily 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push the mirrored branches and tags
+
+concurrency:
+  group: mirror-upstreams
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # every branch and tag, so a push sends only new objects
+
+      - name: Mirror
+        run: python3 packaging/mirror-upstreams.py
