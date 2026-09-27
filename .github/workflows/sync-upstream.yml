@@ -1,0 +1,47 @@
+name: Sync upstream
+
+# Weekly: fast-forward `upstream` from dnsmasq's own repository and, if
+# `packaging` doesn't contain it yet, open (or update) the pull request
+# "Merge upstream <describe>" from `sync/upstream`. The same for Debian's
+# packaging (thekelleys.org.uk's dnsmasq-debian.git, the Vcs-Git Debian's
+# debian/control names), mirrored as `dnsmasq-debian/kelley/master` and
+# offered from `sync/debian`. See packaging/sync-upstream.py and
+# packaging/README.md.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'  # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write       # fast-forward the mirrors, push the sync branches
+  pull-requests: write  # open or update the merge pull requests
+  actions: write        # start deb.yml on a sync branch
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: sync (${{ matrix.source }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        source: [upstream, debian]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE: ${{ matrix.source }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 packaging/sync-upstream.py "$SOURCE"
