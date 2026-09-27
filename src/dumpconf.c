@@ -930,11 +930,11 @@ static void dump_dns_records(void)
 	  }
 	else
 	  {
+	    /* option.c keeps an MX preference in weight, and only
+	       accepts one after a target. */
 	    printf("mx-host=%s", mx->name);
 	    if (mx->target)
-	      printf(",%s", mx->target);
-	    if (mx->priority)
-	      printf(",%d", mx->priority);
+	      printf(",%s,%d", mx->target, mx->weight);
 	    printf("\n");
 	  }
       }
