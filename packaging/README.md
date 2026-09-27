@@ -1,9 +1,10 @@
 # dnsmasq, packaged for Debian with streaming AXFR
 
 This branch, `packaging`, builds Debian packages of
-[dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) with one change of
+[dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) with two changes of
 ours: streaming AXFR, so dnsmasq can serve authoritative zones larger than
-64 KB to secondary nameservers. They are published as a signed apt
+64 KB to secondary nameservers, and `--dump-config`, which prints the
+configuration dnsmasq loaded. They are published as a signed apt
 repository at <https://mith.ro/dnsmasq/>.
 
 It follows the "Set A: someone else's code" layout of
@@ -35,13 +36,20 @@ where the branch started.
    2026-06-23 an upgrade to Debian's stock 2.93-1 dropped the patch, the
    secondaries stopped syncing, and DNS-01 certificate renewals failed.
    Not yet sent upstream.
-2. **Upstream's `debian` submodule and symlink are removed**, so that
+2. **`--dump-config`** (`src/dumpconf.c`, `src/option.c`; the commit "Add
+   --dump-config option to dump loaded config and exit", from branch
+   `mithro/dump-config`, and two fixes after it). Like `--test`, it reads
+   every configuration file and exits, but first prints the whole resolved
+   configuration in `dnsmasq.conf` syntax, for debugging a configuration
+   split over many files (ten64's is in `/etc/dnsmasq.d/`). The dump reads
+   back with `--test`. Not yet sent upstream.
+3. **Upstream's `debian` submodule and symlink are removed**, so that
    `debian/` is a plain directory at the root (Debian's, merged with its
    history).
-3. **`debian/control`**: `Maintainer` is ours and Debian's moves to
+4. **`debian/control`**: `Maintainer` is ours and Debian's moves to
    `XSBC-Original-Maintainer`; `Vcs-Git`/`Vcs-Browser` point here. Package
    names are Debian's, so these packages replace Debian's on upgrade.
-4. **debhelper compat 13, not 14**: Debian's 2.93-2 moved to compat 14,
+5. **debhelper compat 13, not 14**: Debian's 2.93-2 moved to compat 14,
    which needs debhelper 14, and trixie has that only in trixie-backports.
    Our commit reverts that one Debian commit, so all three suites build
    from the same tree. Drop the revert once the oldest suite we build has
@@ -50,10 +58,10 @@ where the branch started.
 Debian's own quilt patch (`debian/patches/eliminate-privacy-breaches.patch`)
 is still applied by the build, as Debian applies it.
 
-Other branches with changes of ours (`mithro/dump-config`,
-`mithro/lease-aware-dns`, `mithro/pin-wildcard`,
-`mithro/auth-sec-servers-segfault`) are not in this build. The segfault fix
-and the `OPT_LOG_ONLY_FAILED` fix they carry are upstream now.
+Other branches with changes of ours (`mithro/lease-aware-dns`,
+`mithro/pin-wildcard`, `mithro/auth-sec-servers-segfault`) are not in this
+build. The segfault fix and the `OPT_LOG_ONLY_FAILED` fix they carry are
+upstream now.
 
 ## Versions
 
@@ -81,8 +89,9 @@ and, if `packaging` doesn't contain it, opens or updates the pull request
 "Merge upstream <describe>" from `sync/upstream`. Its build is a
 `workflow_dispatch` run of `deb.yml` on `sync/upstream` (a pull request a
 workflow opens starts no checks). Review it, and merge it with a merge
-commit. If it conflicts (most likely in the AXFR code), the workflow fails
-and says what to run:
+commit. If it conflicts (most likely in the AXFR code, or in
+`src/option.c`'s option numbers), the workflow fails and says what to
+run:
 
 ```sh
 git checkout -B sync/upstream origin/packaging
