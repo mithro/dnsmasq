@@ -107,6 +107,28 @@ Never rebase `packaging`: that rewrites what has been published.
 opens "Merge Debian packaging <version>" from `sync/debian`. Merging it
 raises the version's base to Debian's new version.
 
+**Mirrors.** `.github/workflows/mirror-upstreams.yml` runs daily (and on
+demand) and copies every branch and tag of the repositories we follow into
+this one (`packaging/mirror-upstreams.py` has the full mapping):
+
+| source | branches here |
+|---|---|
+| `git://thekelleys.org.uk/dnsmasq.git` | `master`; `aws`, `rfc7440`, ... (its `refs/remotes/origin/*`); `holly/*` (its `refs/remotes/holly/*`) |
+| `git://thekelleys.org.uk/dnsmasq-debian.git` | `dnsmasq-debian/kelley/*` |
+| `https://salsa.debian.org/debian/dnsmasq.git` | `dnsmasq-debian/debian/salsa/*` |
+| `https://git.dgit.debian.org/dnsmasq` | `dnsmasq-debian/debian/dgit/*` |
+
+All their tags are copied as they are (`v*`, `debian/*`, `upstream/*`,
+`archive/*`). The mirrors follow their sources even when a source rewrites
+a branch or moves a tag, so they always match what is published there;
+nothing is deleted when a source deletes something. They never write to
+`packaging`, `upstream`, `sync/*` or our `mithro/*` branches. `upstream`
+is sync-upstream.yml's alone and only fast-forwards, so a rewritten
+upstream `master` shows up as `master` moving while `upstream` doesn't,
+and sync-upstream.yml failing. `dnsmasq-debian/kelley/master` is a
+mirror, so if Debian's packaging repository is ever rewritten, the
+"Merge Debian packaging" pull request is where it shows.
+
 **A new patch of ours** is an ordinary commit on a branch, in a pull
 request against `packaging`, with an `Upstream:` trailer saying where it
 stands upstream.
