@@ -201,6 +201,7 @@ struct myoption {
 #define LOPT_LEASEQUERY    389
 #define LOPT_SPLIT_RELAY   390
 #define LOPT_LOG_MALLOC    391
+#define LOPT_DUMPCONF      392
 
 #ifdef HAVE_GETOPT_LONG
 static const struct option opts[] =  
@@ -403,6 +404,7 @@ static const struct myoption opts[] =
     { "max-tcp-connections", 1, 0, LOPT_MAX_PROCS },
     { "leasequery", 2, 0, LOPT_LEASEQUERY },
     { "log-malloc", 0, 0, LOPT_LOG_MALLOC },
+    { "dump-config", 0, 0, LOPT_DUMPCONF },
     { NULL, 0, 0, 0 }
   };
 
@@ -554,6 +556,7 @@ static struct {
   { LOPT_PXE_PROMT, ARG_DUP, "<prompt>,[<timeout>]", gettext_noop("Prompt to send to PXE clients."), NULL },
   { LOPT_PXE_SERV, ARG_DUP, "<service>", gettext_noop("Boot service for PXE menu."), NULL },
   { LOPT_TEST, 0, NULL, gettext_noop("Check configuration syntax."), NULL },
+  { LOPT_DUMPCONF, 0, NULL, gettext_noop("Dump loaded configuration to stdout and exit."), NULL },
   { LOPT_ADD_MAC, ARG_DUP, "[=base64|text]", gettext_noop("Add requestor's MAC address to forwarded DNS queries."), NULL },
   { LOPT_STRIP_MAC, OPT_STRIP_MAC, NULL, gettext_noop("Strip MAC information from queries."), NULL },
   { LOPT_ADD_SBNET, ARG_ONE, "<v4 pref>[,<v6 pref>]", gettext_noop("Add specified IP subnet to forwarded DNS queries."), NULL },
@@ -5985,7 +5988,7 @@ void read_opts(int argc, char **argv, char *compile_opts)
 {
   size_t argbuf_size = 300;
   char *argbuf = safe_malloc(argbuf_size);
-  int option, testmode = 0;
+  int option, testmode = 0, dumpconfmode = 0;
   char *arg, *conffile = NULL;
   
   opterr = 0;
@@ -6069,6 +6072,8 @@ void read_opts(int argc, char **argv, char *compile_opts)
       /* command-line only stuff */
       if (option == LOPT_TEST)
 	testmode = 1;
+      else if (option == LOPT_DUMPCONF)
+	dumpconfmode = 1;
       else if (option == 'w')
 	{
 #ifdef HAVE_DHCP
@@ -6350,6 +6355,12 @@ void read_opts(int argc, char **argv, char *compile_opts)
       /* listen only on localhost, emulate --interface=lo --bind-interfaces */
       if_names_add(NULL);
       set_option_bool(OPT_NOWILD);
+    }
+
+  if (dumpconfmode)
+    {
+      dump_config();
+      exit(0);
     }
 
   if (testmode)

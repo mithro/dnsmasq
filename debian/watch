@@ -1,0 +1,4 @@
+Version: 5
+Pgp-Mode: auto
+Source: https://thekelleys.org.uk/dnsmasq/
+Matching-Pattern: dnsmasq@ANY_VERSION@.tar.gz
