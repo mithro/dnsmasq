@@ -49,8 +49,10 @@ fixes are gone — both are now upstream.
 ## CI
 
 - `sync-upstream.yml` (branch `github-actions`): mirror upstreams daily.
-- `deb.yml` (branch `mithro/welland`): build the arm64 deb in a `debian:trixie`
-  container and publish a GPG-signed apt repo to GitHub Pages. Signing key
+- `deb.yml` (branch `mithro/welland`): build the arm64 deb for trixie, forky and
+  sid, each in that suite's own `debian:<suite>` container, and publish a
+  GPG-signed apt repo with one suite each to GitHub Pages. A pull request
+  builds all three and publishes nothing. Signing key
   `52BB8AD2DE80FF4C0E80ADA2C587965895C3858B`; the private key is the repo secret
   `APT_GPG_PRIVATE_KEY`.
 
